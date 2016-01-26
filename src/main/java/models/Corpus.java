@@ -6,6 +6,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import Util.AlgorithmUtil;
+
 /**
  * Corpus class Interface to perform ranking algorithm (tfidf) and (tficf)
  * 
@@ -130,7 +132,7 @@ public class Corpus {
 	public ArrayList<PDF> filterPDFTDIDF(ArrayList<PDF> pdfList2, double level) {
 		for (int ii = 0; ii < pdfList.size(); ii++) {
 			ArrayList<WordOcc> words = pdfList.get(ii).getWordOccList();
-			ArrayList<WordOcc> test = new ArrayList();
+			ArrayList<WordOcc> test = new ArrayList<WordOcc>();
 
 			for (int jj = 0; jj < words.size(); jj++) {
 
@@ -227,9 +229,6 @@ public class Corpus {
 				}
 			}
 			if (!found) {
-				if (word == null) {
-					int test = 0;
-				}
 				this.globalCategoryCatalog.get(position).getKeywordList()
 						.add(word);
 				catocc = catocc + word.getOcc();
@@ -395,7 +394,7 @@ public class Corpus {
 		for (int ii = 0; ii < globalCategoryCatalog.size(); ii++) {
 			ArrayList<WordOcc> words = globalCategoryCatalog.get(ii)
 					.getKeywordList();
-			ArrayList<WordOcc> relevantWords = new ArrayList();
+			ArrayList<WordOcc> relevantWords = new ArrayList<WordOcc>();
 
 			for (int jj = 0; jj < words.size(); jj++) {
 

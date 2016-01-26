@@ -2,6 +2,8 @@ package models;
 
 import java.util.ArrayList;
 
+import Util.AlgorithmUtil;
+
 /** Category Catalog (consist of the category and all its associated words)
  * @author Simon Bruns
  *

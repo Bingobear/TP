@@ -1,21 +1,18 @@
 package modules;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.net.URL;
 import java.text.Normalizer;
 import java.util.ArrayList;
 
-import org.apache.commons.io.FileUtils;
-
-import models.*;
+import models.Corpus;
+import models.PDF;
+import models.WordOcc;
+import models.Words;
+import Util.NLPUtil;
 
 import com.cybozu.labs.langdetect.LangDetectException;
 
@@ -42,6 +39,7 @@ public class PDFHandler {
 	 */
 	public static void main(String[] args) {
 		// BasicConfigurator.configure();
+		@SuppressWarnings("unused")
 		Corpus corpus = null;
 		PDFHandler app = new PDFHandler();
 		if (debug_extractor) {
@@ -105,7 +103,6 @@ public class PDFHandler {
 		// available
 		String importtitle = home + "/importData/pdftitleo.csv";
 		System.out.println(importtitle);
-		PDFExtractor extractor = new PDFExtractor();
 		ArrayList<String> titles = readCSVTitle(importtitle);
 		for (final File fileEntry : folder.listFiles()) {
 			if (fileEntry.isFile()) {
@@ -113,50 +110,73 @@ public class PDFHandler {
 				System.out.println("File= " + folder.getAbsolutePath() + "\\"
 						+ fileEntry.getName());
 
-				ArrayList<Words> words = new ArrayList<Words>();
-				try {
-					words = extractor.parsePDFtoKey(fileEntry, first,
-							corpus.getPdfList());
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-					System.out.println("File corrupted");
-				}
-				if (first) {
-					first = false;
-				}
-				if (words.size() == 0) {
-					int test = 0;
-				} else {
-
-					ArrayList<WordOcc> occ = extractor.keyOcc(words);
-
-					PDF pdf = new PDF(occ, extractor.getLang(),
-							extractor.getWordcount(), extractor.getTitlePage());
-					pdf.setGenericKeywords(extractor.getKeywords());
-
-					pdf.setCatnumb(extractor.getCatnumb());
-					// RUDEMENTARY TITLE EXTRACTION VIA FILE
-					pdf.setTitle(getTitle(fileEntry.getName(), titles));
-
-					// No keywords -> not valid pdf
+				PDF pdf = createPDF(fileEntry, first, corpus.getPdfList(),
+						titles);
+				// No keywords -> not valid pdf
+				if (pdf != null) {
 					if (!pdf.getGenericKeywords().isEmpty()) {
 						pdf.setFilename(fileEntry.getName());
 						pdfList.add(pdf);
-						String language = pdf.getLanguage();
-						pdf.setPagecount(extractor.getPagenumber());
-						corpus.incDocN(language);
+						corpus.incDocN(pdf.getLanguage());
 						corpus.setPdfList(pdfList);
 						corpus.associateWordswithCategory(pdf);
-
 					}
 				}
+
 			} else if (fileEntry.isDirectory()) {
 				System.out.println("Change Current Folder!");
 				createCorpus(fileEntry, corpus, pdfList, first);
 			}
 		}
 		return corpus;
+	}
+
+	/***
+	 * Generates the PDF with its corresponding informations from a given File
+	 * 
+	 * @param fileEntry
+	 * @param first
+	 * @param pdfList
+	 * @param titles
+	 * @return
+	 * @throws LangDetectException
+	 */
+	private PDF createPDF(File fileEntry, boolean first,
+			ArrayList<PDF> pdfList, ArrayList<String> titles)
+			throws LangDetectException {
+		PDFExtractor extractor = new PDFExtractor();
+
+		ArrayList<Words> words = new ArrayList<Words>();
+		try {
+			words = extractor.parsePDFtoKey(fileEntry, first, pdfList);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			System.out.println("File corrupted");
+		}
+		if (first) {
+			first = false;
+		}
+		if (words.size() > 0) {
+
+			ArrayList<WordOcc> occ = NLPUtil.keyOcc(words);
+
+			PDF pdf = new PDF(occ, extractor.getLang(),
+					extractor.getWordcount(), extractor.getTitlePage());
+			pdf.setGenericKeywords(extractor.getKeywords());
+
+			pdf.setCatnumb(extractor.getCatnumb());
+			// RUDEMENTARY TITLE EXTRACTION VIA FILE
+			pdf.setTitle(getTitle(fileEntry.getName(), titles));
+
+			// No keywords -> not valid pdf
+			if (!pdf.getGenericKeywords().isEmpty()) {
+				pdf.setFilename(fileEntry.getName());
+				pdf.setPagecount(extractor.getPagenumber());
+				return pdf;
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -231,29 +251,5 @@ public class PDFHandler {
 	}
 
 
-
-	private static void createTextExport(ArrayList<WordOcc> keyOcc,
-			String path, String title) {
-		Writer writer = null;
-
-		try {
-			writer = new BufferedWriter(new OutputStreamWriter(
-					new FileOutputStream(path + title + ".txt"), "utf-8"));
-			for (int ii = 0; ii < keyOcc.size(); ii++) {
-				WordOcc current = keyOcc.get(ii);
-
-				writer.write(current.getWord().getWord() + ";"
-						+ current.getOcc() + ";");
-
-			}
-		} catch (IOException ex) {
-			// report
-		} finally {
-			try {
-				writer.close();
-			} catch (Exception ex) {
-			}
-		}
-	}
 
 }

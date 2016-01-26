@@ -1,4 +1,4 @@
-package models;
+package Util;
 
 /**A collection of useful Algorithms
  * @author Simon Bruns

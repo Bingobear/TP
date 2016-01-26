@@ -9,6 +9,8 @@ package models;
 
 import java.util.ArrayList;
 
+import Util.AlgorithmUtil;
+
 public class PDF {
 	private ArrayList<WordOcc> wordOcc;
 	private String language;
