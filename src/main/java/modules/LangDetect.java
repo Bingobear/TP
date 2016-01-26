@@ -2,6 +2,8 @@ package modules;
 
 
 
+import Util.AlgorithmUtil;
+
 import com.cybozu.labs.langdetect.Detector;
 import com.cybozu.labs.langdetect.DetectorFactory;
 import com.cybozu.labs.langdetect.LangDetectException;
@@ -23,9 +25,10 @@ public class LangDetect {
 			 text = parsedText.substring(150);
 		}
 		
-		if (first) {
+		if (AlgorithmUtil.first) {
 			try {
 				DetectorFactory.loadProfile("res/profiles");
+				AlgorithmUtil.first = false;
 			} catch (LangDetectException e) {
 				// TODO Auto-generated catch block
 				System.out.println(first);
