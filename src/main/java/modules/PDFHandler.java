@@ -64,7 +64,7 @@ public class PDFHandler {
 	 * @throws LangDetectException
 	 * @throws IOException
 	 */
-	private Corpus parsePDFtoKey() throws LangDetectException, IOException {
+	public Corpus parsePDFtoKey() throws LangDetectException, IOException {
 
 		String importData = "c:/RWTH/Data/test/";
 		File folder = new File(importData);
@@ -94,7 +94,7 @@ public class PDFHandler {
 	 * @return corpus
 	 * @throws LangDetectException
 	 */
-	private Corpus createCorpus(File folder, Corpus corpus,
+	public Corpus createCorpus(File folder, Corpus corpus,
 			ArrayList<PDF> pdfList, boolean first) throws LangDetectException {
 		File hack = new File(".");
 		String home = hack.getAbsolutePath();
@@ -141,7 +141,7 @@ public class PDFHandler {
 	 * @return
 	 * @throws LangDetectException
 	 */
-	private PDF createPDF(File fileEntry, boolean first,
+	public PDF createPDF(File fileEntry, boolean first,
 			ArrayList<PDF> pdfList, ArrayList<String> titles)
 			throws LangDetectException {
 		PDFExtractor extractor = new PDFExtractor();
@@ -189,7 +189,7 @@ public class PDFHandler {
 	 * @return
 	 */
 
-	private String getTitle(String fileName, ArrayList<String> titles) {
+	public String getTitle(String fileName, ArrayList<String> titles) {
 		for (int ii = 0; ii < titles.size(); ii = ii + 2) {
 			if (titles.get(ii).equals(fileName)) {
 				System.out.println("FOUND:" + titles.get(ii + 1));
