@@ -8,30 +8,26 @@ import com.cybozu.labs.langdetect.LangDetectException;
 
 public class LangDetectTest {
 
+	@Test
+	public void testGerDetect() throws LangDetectException {
+		LangDetect detect = new LangDetect();
+		String lang = detect.detect("Guten Abend die Herren", false);
+		assertEquals("de", lang);
+	}
 
 	@Test
-	public void testGerDetect() {
+	public void testEngDetect() throws LangDetectException {
 		LangDetect detect = new LangDetect();
-		String lang = null;
-		try {
-			lang = detect.detect("Guten Abend die Herren Schnösel", false);
-		} catch (LangDetectException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		assertEquals("de",lang);
+		String lang = detect.detect(
+				"Hello darkness my old friend. Nice to see you again", false);
+		assertEquals("en", lang);
 	}
-	@Test
-	public void testEngDetect() {
+	
+	@Test(expected=LangDetectException.class)
+	public void testNoLangDetect() throws LangDetectException {
 		LangDetect detect = new LangDetect();
-		String lang = null;
-		try {
-			lang = detect.detect("Hello darkness my old friend. Nice to see you again", false);
-		} catch (LangDetectException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		assertEquals("en",lang);
+		String lang = detect.detect("§$%&/()=", false);
+		assertEquals("unknown", lang); // unreached
 	}
 
 }

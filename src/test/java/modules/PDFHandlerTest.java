@@ -3,6 +3,7 @@ package modules;
 import static org.junit.Assert.*;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import models.Corpus;
@@ -15,24 +16,19 @@ import com.cybozu.labs.langdetect.LangDetectException;
 public class PDFHandlerTest {
 
 	@Test
-	public void testCreateCorpus() {
+	public void testCreateCorpus() throws LangDetectException {
 		String importData = "c:/RWTH/Data/test/";
 		File folder = new File(importData);
 		Corpus corpus = new Corpus();
 		ArrayList<PDF> pdfList = new ArrayList<PDF>();
 		boolean first = true;
 		PDFHandler pdfh = new PDFHandler();
-		try {
-			corpus = pdfh.createCorpus(folder, corpus, pdfList, first);
-		} catch (LangDetectException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		corpus = pdfh.createCorpus(folder, corpus, pdfList, first);
 		assertEquals(4, corpus.getPdfList().size());
 	}
 
 	@Test
-	public void testCreatePDF() {
+	public void testCreatePDF() throws LangDetectException, IOException {
 		PDFHandler pdfh = new PDFHandler();
 		String importData = "c:/RWTH/Data/test/himmel_et_al-older-users-wishlist.pdf";
 		File fileEntry = new File(importData);
@@ -42,12 +38,7 @@ public class PDFHandlerTest {
 		String importtitle = home + "/importData/pdftitleo.csv";
 		ArrayList<String> titles = pdfh.readCSVTitle(importtitle);
 		PDF pdf = new PDF();
-		try {
-			pdf = pdfh.createPDF(fileEntry, true, pdfList, titles);
-		} catch (LangDetectException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		pdf = pdfh.createPDF(fileEntry, true, pdfList, titles);
 		assertEquals(12, pdf.getPagecount());
 	}
 
@@ -61,6 +52,7 @@ public class PDFHandlerTest {
 		String title = "";
 
 		title = pdfh.getTitle("himmel_et_al-older-users-wishlist", titles);
+//		title = pdfh.getTitle("himmel_und_eerd", titles);
 
 		assertEquals(
 				"Older Users’ Wish List for Technology Attributes: A Comparison of Household and Medical Technologies",
