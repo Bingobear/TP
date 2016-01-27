@@ -209,7 +209,7 @@ public class PDFHandler {
 	 * @param importtitle
 	 * @return
 	 */
-	private ArrayList<String> readCSVTitle(String importtitle) {
+	ArrayList<String> readCSVTitle(String importtitle) {
 		String csvFile = importtitle;
 		BufferedReader br = null;
 		String line = "";
