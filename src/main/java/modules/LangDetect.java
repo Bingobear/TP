@@ -1,39 +1,31 @@
 package modules;
 
-
-
 import Util.AlgorithmUtil;
 
 import com.cybozu.labs.langdetect.Detector;
 import com.cybozu.labs.langdetect.DetectorFactory;
 import com.cybozu.labs.langdetect.LangDetectException;
 
-
-/**Language Interface - Detects a given Strings language
+/**
+ * Language Interface - Detects a given Strings language
+ * 
  * @author Simon Bruns
- *
+ * 
  */
 public class LangDetect {
 
 	public String detect(String parsedText, boolean first)
 			throws LangDetectException {
-		// TODO Auto-generated method stub
 		String text = "";
-		if(parsedText.length()<150){
+		if (parsedText.length() < 150) {
 			text = parsedText;
-		}else{
-			 text = parsedText.substring(150);
+		} else {
+			text = parsedText.substring(150);
 		}
-		
+
 		if (AlgorithmUtil.first) {
-			try {
-				DetectorFactory.loadProfile("res/profiles");
-				AlgorithmUtil.first = false;
-			} catch (LangDetectException e) {
-				// TODO Auto-generated catch block
-				System.out.println(first);
-				e.printStackTrace();
-			}
+			DetectorFactory.loadProfile("res/profiles");
+			AlgorithmUtil.first = false;
 		}
 		Detector detector = DetectorFactory.create();
 		detector.append(text);

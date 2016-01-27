@@ -110,17 +110,24 @@ public class PDFHandler {
 				System.out.println("File= " + folder.getAbsolutePath() + "\\"
 						+ fileEntry.getName());
 
-				PDF pdf = createPDF(fileEntry, first, corpus.getPdfList(),
-						titles);
-				// No keywords -> not valid pdf
-				if (pdf != null) {
-					if (!pdf.getGenericKeywords().isEmpty()) {
-						pdf.setFilename(fileEntry.getName());
-						pdfList.add(pdf);
-						corpus.incDocN(pdf.getLanguage());
-						corpus.setPdfList(pdfList);
-						corpus.associateWordswithCategory(pdf);
+				PDF pdf;
+				try {
+					pdf = createPDF(fileEntry, first, corpus.getPdfList(),
+							titles);
+					// No keywords -> not valid pdf
+					if (pdf != null) {
+						if (!pdf.getGenericKeywords().isEmpty()) {
+							pdf.setFilename(fileEntry.getName());
+							pdfList.add(pdf);
+							corpus.incDocN(pdf.getLanguage());
+							corpus.setPdfList(pdfList);
+							corpus.associateWordswithCategory(pdf);
+						}
 					}
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					System.out.println("File corrupted: "+fileEntry);
+					e.printStackTrace();
 				}
 
 			} else if (fileEntry.isDirectory()) {
@@ -140,23 +147,14 @@ public class PDFHandler {
 	 * @param titles
 	 * @return
 	 * @throws LangDetectException
+	 * @throws IOException
 	 */
-	public PDF createPDF(File fileEntry, boolean first,
-			ArrayList<PDF> pdfList, ArrayList<String> titles)
-			throws LangDetectException {
+	public PDF createPDF(File fileEntry, boolean first, ArrayList<PDF> pdfList,
+			ArrayList<String> titles) throws LangDetectException, IOException {
 		PDFExtractor extractor = new PDFExtractor();
 
 		ArrayList<Words> words = new ArrayList<Words>();
-		try {
-			words = extractor.parsePDFtoKey(fileEntry, first, pdfList);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			System.out.println("File corrupted");
-		}
-		if (first) {
-			first = false;
-		}
+		words = extractor.parsePDFtoKey(fileEntry, first, pdfList);
 		if (words.size() > 0) {
 
 			ArrayList<WordOcc> occ = NLPUtil.keyOcc(words);
@@ -206,11 +204,10 @@ public class PDFHandler {
 	 * retrieve titles from external csv title file. External mapping exists for
 	 * unknown pdfs (titles) to the library file.
 	 * 
-	 * @param importtitle
+	 * @param csvFile
 	 * @return
 	 */
-	ArrayList<String> readCSVTitle(String importtitle) {
-		String csvFile = importtitle;
+	ArrayList<String> readCSVTitle(String csvFile) {
 		BufferedReader br = null;
 		String line = "";
 		String cvsSplitBy = ";";
@@ -249,7 +246,5 @@ public class PDFHandler {
 		System.out.println("Done");
 		return titles;
 	}
-
-
 
 }
