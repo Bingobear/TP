@@ -4,7 +4,9 @@ import java.util.ArrayList;
 
 public class KeywordUtil {
 
-	/**extracts the separator (e.g. ",") from a given text (list)
+	/**
+	 * extracts the separator (e.g. ",") from a given text (list)
+	 * 
 	 * @param textPDF
 	 * @return
 	 */
@@ -25,15 +27,21 @@ public class KeywordUtil {
 				}
 			}
 		}
-		return seperatorC[sep];
+		if (occ[sep] < 1) {
+			return null;
+		} else {
+			return seperatorC[sep];
+		}
 	}
 
-	/**Identifies the probable start of the keyword enumeration
+	/**
+	 * Identifies the probable start of the keyword enumeration
+	 * 
 	 * @param textPDF
 	 * @return
 	 */
 	public static int findKeyWStart(ArrayList<String> textPDF) {
-		int start = 0;
+		int start = -1;
 		if (textPDF.contains("keywords")) {
 			start = textPDF.indexOf("keywords") + 1;
 
@@ -60,10 +68,12 @@ public class KeywordUtil {
 						textPDF.subList(Istart + 1, textPDF.size())));
 			}
 		}
-		return start;
+			return start;		
 	}
 
-	/**Identifies start of keywordenumeration (pdf uses as a term synonym)
+	/**
+	 * Identifies start of keywordenumeration (pdf uses as a term synonym)
+	 * 
 	 * @param ostart
 	 * @param arrayList
 	 * @return
@@ -85,9 +95,11 @@ public class KeywordUtil {
 
 	}
 
-	/** identifies keyword start via "keyword" position
+	/**
+	 * identifies keyword start via "keyword" position
+	 * 
 	 * @param textPDF
-	 * @return 
+	 * @return
 	 * @return
 	 */
 	private static int getKeywPosition(ArrayList<String> textPDF) {
@@ -103,12 +115,14 @@ public class KeywordUtil {
 				}
 			}
 		}
-		return 0;
+		return -1;
 	}
 
-	/** Identifies keyword end position
+	/**
+	 * Identifies keyword end position
+	 * 
 	 * @param textPDF
-	 * @return 
+	 * @return
 	 * @return
 	 */
 	public static int findKeyWEnd(ArrayList<String> textPDF) {
@@ -138,8 +152,10 @@ public class KeywordUtil {
 
 	}
 
-
-	/**Extracts the akronom from a given string e.g. technology acceptance (ta) -> ta
+	/**
+	 * Extracts the akronom from a given string e.g. technology acceptance (ta)
+	 * -> ta
+	 * 
 	 * @param arrayList
 	 * @return
 	 */
@@ -171,8 +187,10 @@ public class KeywordUtil {
 		}
 		return 0;
 	}
-	
-	/**Identifies dot position to resolve fragments or end
+
+	/**
+	 * Identifies dot position to resolve fragments or end
+	 * 
 	 * @param textPDF
 	 * @return
 	 */
@@ -194,6 +212,5 @@ public class KeywordUtil {
 		}
 		return 50;
 	}
-	
-	
+
 }
