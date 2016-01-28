@@ -189,7 +189,7 @@ public class PDFHandler {
 
 	public String getTitle(String fileName, ArrayList<String> titles) {
 		for (int ii = 0; ii < titles.size(); ii = ii + 2) {
-			if (titles.get(ii).equals(fileName)) {
+			if (titles.get(ii).contains(fileName)) {
 				System.out.println("FOUND:" + titles.get(ii + 1));
 				String titleNorm = Normalizer.normalize(titles.get(ii + 1),
 						Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "");
