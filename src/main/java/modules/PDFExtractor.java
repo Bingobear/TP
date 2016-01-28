@@ -212,7 +212,6 @@ public class PDFExtractor {
 			}
 			if (compare.getFirstPage().substring(0, sublength)
 					.equals(titlepage.substring(0, sublength))) {
-				System.out.println("WORKS");
 				return true;
 			}
 		}
