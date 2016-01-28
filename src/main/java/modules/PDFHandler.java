@@ -126,11 +126,11 @@ public class PDFHandler {
 					}
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
-					System.out.println("File corrupted: "+fileEntry);
-					e.printStackTrace();
+//					System.out.println("File corrupted: "+fileEntry);
+//					e.printStackTrace();
 				} catch (InvalidPDF e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+//					e.printStackTrace();
 				}
 
 			} else if (fileEntry.isDirectory()) {
