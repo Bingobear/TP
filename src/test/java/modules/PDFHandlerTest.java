@@ -9,13 +9,14 @@ import java.util.ArrayList;
 import models.Corpus;
 import models.PDF;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.cybozu.labs.langdetect.LangDetectException;
 
 public class PDFHandlerTest {
 
-	@Test
+	@Ignore
 	public void testCreateCorpus() throws LangDetectException {
 		String importData = "c:/RWTH/Data/test/";
 		File folder = new File(importData);
@@ -49,13 +50,10 @@ public class PDFHandlerTest {
 		String home = hack.getAbsolutePath();
 		String importtitle = home + "/importData/pdftitleo.csv";
 		ArrayList<String> titles = pdfh.readCSVTitle(importtitle);
-		String title = "";
-
-		title = pdfh.getTitle("himmel_et_al-older-users-wishlist", titles);
-//		title = pdfh.getTitle("himmel_und_eerd", titles);
+		String title = pdfh.getTitle("himmel_et_al-older-users-wishlist", titles);
 
 		assertEquals(
-				"Older Users’ Wish List for Technology Attributes: A Comparison of Household and Medical Technologies",
+				"Older Users Wish List for Technology Attributes: A Comparison of Household and Medical Technologies",
 				title);
 	}
 
