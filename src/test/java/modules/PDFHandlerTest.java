@@ -16,7 +16,7 @@ import com.cybozu.labs.langdetect.LangDetectException;
 
 public class PDFHandlerTest {
 
-	@Ignore
+	@Test
 	public void testCreateCorpus() throws LangDetectException {
 		String importData = "c:/RWTH/Data/test/";
 		File folder = new File(importData);
