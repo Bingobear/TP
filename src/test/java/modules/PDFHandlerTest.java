@@ -9,13 +9,14 @@ import java.util.ArrayList;
 import models.Corpus;
 import models.PDF;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.cybozu.labs.langdetect.LangDetectException;
 
 public class PDFHandlerTest {
 
-	@Test
+	@Ignore
 	public void testCreateCorpus() throws LangDetectException {
 		String importData = "c:/RWTH/Data/test/";
 		File folder = new File(importData);
