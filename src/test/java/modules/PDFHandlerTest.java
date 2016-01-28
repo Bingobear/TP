@@ -1,6 +1,6 @@
 package modules;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import models.Corpus;
 import models.PDF;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.cybozu.labs.langdetect.LangDetectException;
@@ -29,7 +28,7 @@ public class PDFHandlerTest {
 	}
 
 	@Test
-	public void testCreatePDF() throws LangDetectException, IOException {
+	public void testCreatePDF() throws LangDetectException, IOException, InvalidPDF {
 		PDFHandler pdfh = new PDFHandler();
 		String importData = "c:/RWTH/Data/test/himmel_et_al-older-users-wishlist.pdf";
 		File fileEntry = new File(importData);
@@ -43,8 +42,8 @@ public class PDFHandlerTest {
 		assertEquals(12, pdf.getPagecount());
 	}
 	
-	@Test(expected=NullPointerException.class)
-	public void testCreatePDFFromPresentation() throws LangDetectException, IOException {
+	@Test(expected=InvalidPDF.class)
+	public void testCreatePDFFromPresentation() throws LangDetectException, IOException, InvalidPDF {
 		PDFHandler pdfh = new PDFHandler();
 		String importData = "c:/RWTH/Data/test/RS_ACCES_POSTER_Numerical_Shape_Optimization_of_Profile_Extrusion_Dies.pdf";
 		File fileEntry = new File(importData);

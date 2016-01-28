@@ -1,10 +1,8 @@
 package Util;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class NLPUtilTest {
@@ -31,6 +29,14 @@ public class NLPUtilTest {
 						.size());
 	}
 
+	@Test
+	public void testGenerateWordsEmpty() {
+		String [] tokenemp=new String[]{""};
+		String [] filteremp=new String[]{""};
+		assertEquals(0, NLPUtil.generateWords(filteremp, tokenemp, 0, "en", null)
+				.size());
+	}
+	
 	@Test
 	public void testGenerateWordsNouns() {
 		assertEquals(7, NLPUtil.generateWords(filter, tokens, 0, "en", null)
@@ -65,14 +71,6 @@ public class NLPUtilTest {
 		assertEquals(25, NLPUtil.getToken(testText, "en").length);
 	}
 
-	@Ignore
-	public void testSentencedetect() {
-		fail("Not yet implemented");
-	}
 
-	@Ignore
-	public void testParsePdftoString() {
-		fail("Not yet implemented");
-	}
 
 }

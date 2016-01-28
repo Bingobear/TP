@@ -10,12 +10,14 @@ import org.junit.Test;
 
 public class KeywordUtilTest {
 	ArrayList<String> textPDF;
+	int endKeylist;
 
 	@Before
 	public void setup() {
 
 		String testStr = "Our research provides valuable insights for stakeholders and contributes to the research on acceptance of energy infrastructures by providing a cross-sectional view. Keywords: energy infrastructure, technology acceptance, technical selfefficacy, user diversity, renewable energies. 1 Introduction The ongoing diffusion";
 		testStr = testStr.toLowerCase();
+		endKeylist =39;
 		String[] tokens = NLPUtil.getTokenPM(testStr, "en");
 		textPDF = new ArrayList<String>(Arrays.asList(tokens));
 	}
@@ -45,8 +47,7 @@ public class KeywordUtilTest {
 		int start = KeywordUtil.findKeyWStart(textPDF);
 		ArrayList<String> textend = new ArrayList<String>(textPDF.subList(
 				start, textPDF.size() - 1));
-		// 39
-		assertEquals(15 + start, KeywordUtil.findKeyWEnd(textend) + start);
+		assertEquals(endKeylist, KeywordUtil.findKeyWEnd(textend) + start);
 
 	}
 	
