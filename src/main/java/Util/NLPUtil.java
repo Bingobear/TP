@@ -236,7 +236,7 @@ public class NLPUtil {
 				if ((!help.isEmpty()) && (help.length() > 2)) {
 					tokensA.add(tokenSen[jj]);
 				} else if ((help.equals("-")) && (jj + 1 < tokenSen.length)) {
-					System.out.println(tokenSen[jj]);
+//					System.out.println(tokenSen[jj]);
 					String tokencomb = tokensA.get(tokensA.size() - 1) + "-"
 							+ tokenSen[jj + 1];
 					jj++;
