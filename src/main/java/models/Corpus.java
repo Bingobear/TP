@@ -195,7 +195,7 @@ public class Corpus {
 		File logFile = new File(timeLog);
 
 		// This will output the full path where the file will be written to...
-		System.out.println(logFile.getCanonicalPath());
+//		System.out.println(logFile.getCanonicalPath());
 
 		BufferedWriter writer;
 		writer = new BufferedWriter(new FileWriter(logFile, true));

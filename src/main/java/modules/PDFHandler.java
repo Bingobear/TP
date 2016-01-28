@@ -102,13 +102,13 @@ public class PDFHandler {
 		// Not necessary, but for the cases when no corresponding publication is
 		// available
 		String importtitle = home + "/importData/pdftitleo.csv";
-		System.out.println(importtitle);
+//		System.out.println(importtitle);
 		ArrayList<String> titles = readCSVTitle(importtitle);
 		for (final File fileEntry : folder.listFiles()) {
 			if (fileEntry.isFile()) {
 
-				System.out.println("File= " + folder.getAbsolutePath() + "\\"
-						+ fileEntry.getName());
+//				System.out.println("File= " + folder.getAbsolutePath() + "\\"
+//						+ fileEntry.getName());
 
 				PDF pdf;
 				try {
@@ -131,7 +131,7 @@ public class PDFHandler {
 				}
 
 			} else if (fileEntry.isDirectory()) {
-				System.out.println("Change Current Folder!");
+//				System.out.println("Change Current Folder!");
 				createCorpus(fileEntry, corpus, pdfList, first);
 			}
 		}
@@ -190,7 +190,7 @@ public class PDFHandler {
 	public String getTitle(String fileName, ArrayList<String> titles) {
 		for (int ii = 0; ii < titles.size(); ii = ii + 2) {
 			if (titles.get(ii).contains(fileName)) {
-				System.out.println("FOUND:" + titles.get(ii + 1));
+//				System.out.println("FOUND:" + titles.get(ii + 1));
 				String titleNorm = Normalizer.normalize(titles.get(ii + 1),
 						Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "");
 				return titleNorm;
@@ -222,7 +222,7 @@ public class PDFHandler {
 				// use comma as separator
 
 				helper = line.split(cvsSplitBy);
-				System.out.println(helper);
+//				System.out.println(helper);
 				for (int counter = 0; counter < helper.length; counter++) {
 					titles.add(helper[counter]);
 				}
@@ -243,7 +243,7 @@ public class PDFHandler {
 			}
 		}
 
-		System.out.println("Done");
+//		System.out.println("Done");
 		return titles;
 	}
 

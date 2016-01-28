@@ -45,13 +45,13 @@ public class KeywordUtil {
 		if (textPDF.contains("keywords")) {
 			start = textPDF.indexOf("keywords") + 1;
 
-			System.out.println("Keyword found " + start);
+//			System.out.println("Keyword found " + start);
 
 		} else if (textPDF.contains("keyword")) {
 			start = textPDF.indexOf("keyword") + 1;
 		} else {
 			start = getKeywPosition(textPDF);
-			System.out.println("Keyword found within word" + start);
+//			System.out.println("Keyword found within word" + start);
 		}
 		// TODO MAKE IT BEAUTIFUL
 		if (textPDF.contains("index")) {
@@ -62,7 +62,7 @@ public class KeywordUtil {
 				if ((Istart < start) || (start == 0)) {
 					start = Istart;
 				}
-				System.out.println("Index found " + start);
+//				System.out.println("Index found " + start);
 			} else if ((Istart < start) || (start == 0)) {
 				start = findTermsposition(Istart + 1, new ArrayList<String>(
 						textPDF.subList(Istart + 1, textPDF.size())));
@@ -143,7 +143,7 @@ public class KeywordUtil {
 				}
 				if ((end > endCandidate) && (endCandidate > 4)) {
 					end = endCandidate;
-					System.out.println(stops[ii] + ": - " + end);
+//					System.out.println(stops[ii] + ": - " + end);
 				}
 			}
 		}

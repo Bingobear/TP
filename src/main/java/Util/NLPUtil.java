@@ -357,7 +357,7 @@ public class NLPUtil {
 		pdfStripper.setStartPage(start);
 		pdfStripper.setEndPage(end);
 		String parsedText = pdfStripper.getText(pdDoc);
-		System.out.println("pages: " + start + "-" + end + " parsed");
+//		System.out.println("pages: " + start + "-" + end + " parsed");
 		return parsedText;
 	}
 	

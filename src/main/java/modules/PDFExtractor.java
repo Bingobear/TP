@@ -139,7 +139,7 @@ public class PDFExtractor {
 				setLang(lang.detect(parsedText, first));
 
 				if (counter == 0) {
-					System.out.println(getLang());
+//					System.out.println(getLang());
 					if (first) {
 						first = false;
 					}
@@ -180,9 +180,9 @@ public class PDFExtractor {
 				String[] filter = NLPUtil.posttags(tokens,this.language);
 				ArrayList<Words> words = NLPUtil.generateWords(filter, tokens, 0,this.getLang(),this.getKeywords());
 				result.addAll(words);
-				System.out.println("normal:" + tokens.length
-						+ ", optimiertNouns:" + words.size());
-				System.out.println("");
+//				System.out.println("normal:" + tokens.length
+//						+ ", optimiertNouns:" + words.size());
+//				System.out.println("");
 				wordcount = wordcount + tokens.length;
 			} else {
 				System.out.println("Bad Paper or Presentation");
@@ -190,7 +190,7 @@ public class PDFExtractor {
 			}
 		}
 		cosDoc.close();
-		System.out.println("FINAL RESULT:optimiertNouns:" + result.size());
+//		System.out.println("FINAL RESULT:optimiertNouns:" + result.size());
 		return result;
 	}
 
