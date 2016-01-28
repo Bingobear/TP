@@ -18,13 +18,12 @@ public class AlgorithmUtilTest {
 	
 	@Test
     public void testLevenshteinDistance() {
-		assertEquals(0, AlgorithmUtil.LevenshteinDistance("", ""));
-		
+		assertEquals(0, AlgorithmUtil.LevenshteinDistance("", ""));	
 		assertEquals(0, AlgorithmUtil.LevenshteinDistance(testStr, "test")); 
 		assertEquals(1, AlgorithmUtil.LevenshteinDistance(testStr, "tes1"));
 		assertEquals(1, AlgorithmUtil.LevenshteinDistance(testStr, "tes"));
 		assertEquals(1, AlgorithmUtil.LevenshteinDistance(testStr, "testt"));
-        assertEquals(3, AlgorithmUtil.LevenshteinDistance(testStr, "hell"));
+        assertEquals(3, AlgorithmUtil.LevenshteinDistance(testStr, "bell"));
     }
 	
 	@Test
