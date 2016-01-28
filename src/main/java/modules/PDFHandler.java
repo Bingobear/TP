@@ -128,6 +128,9 @@ public class PDFHandler {
 					// TODO Auto-generated catch block
 					System.out.println("File corrupted: "+fileEntry);
 					e.printStackTrace();
+				} catch (InvalidPDF e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
 
 			} else if (fileEntry.isDirectory()) {
@@ -148,9 +151,10 @@ public class PDFHandler {
 	 * @return
 	 * @throws LangDetectException
 	 * @throws IOException
+	 * @throws InvalidPDF 
 	 */
 	public PDF createPDF(File fileEntry, boolean first, ArrayList<PDF> pdfList,
-			ArrayList<String> titles) throws LangDetectException, IOException {
+			ArrayList<String> titles) throws LangDetectException, IOException, InvalidPDF {
 		PDFExtractor extractor = new PDFExtractor();
 
 		ArrayList<Words> words = new ArrayList<Words>();
@@ -174,7 +178,7 @@ public class PDFHandler {
 				return pdf;
 			}
 		}
-		return null;
+		throw new InvalidPDF();
 	}
 
 	/**
