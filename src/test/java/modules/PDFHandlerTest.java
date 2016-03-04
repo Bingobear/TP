@@ -17,21 +17,23 @@ public class PDFHandlerTest {
 
 	@Test
 	public void testCreateCorpus() throws LangDetectException {
-		String importData = "c:/RWTH/Data/test/";
-		File folder = new File(importData);
+		ClassLoader classLoader = getClass().getClassLoader();
+		File folder =new File(classLoader.getResource("text").getFile());
+//		String importData = "c:/RWTH/Data/test/";
+//		File folder = new File(importData);
 		Corpus corpus = new Corpus();
 		ArrayList<PDF> pdfList = new ArrayList<PDF>();
 		boolean first = true;
 		PDFHandler pdfh = new PDFHandler();
 		corpus = pdfh.createCorpus(folder, corpus, pdfList, first);
-		assertEquals(4, corpus.getPdfList().size());
+		assertEquals(2, corpus.getPdfList().size());
 	}
 
 	@Test
 	public void testCreatePDF() throws LangDetectException, IOException, InvalidPDF {
 		PDFHandler pdfh = new PDFHandler();
-		String importData = "c:/RWTH/Data/test/himmel_et_al-older-users-wishlist.pdf";
-		File fileEntry = new File(importData);
+		ClassLoader classLoader = getClass().getClassLoader();
+		File fileEntry =new File(classLoader.getResource("text/schaar_06038875.pdf").getFile());
 		ArrayList<PDF> pdfList = new ArrayList<PDF>();
 		File hack = new File(".");
 		String home = hack.getAbsolutePath();
@@ -39,14 +41,14 @@ public class PDFHandlerTest {
 		ArrayList<String> titles = pdfh.readCSVTitle(importtitle);
 		PDF pdf = new PDF();
 		pdf = pdfh.createPDF(fileEntry, true, pdfList, titles);
-		assertEquals(12, pdf.getPagecount());
+		assertEquals(8, pdf.getPagecount());
 	}
 	
 	@Test(expected=InvalidPDF.class)
 	public void testCreatePDFFromPresentation() throws LangDetectException, IOException, InvalidPDF {
 		PDFHandler pdfh = new PDFHandler();
-		String importData = "c:/RWTH/Data/test/RS_ACCES_POSTER_Numerical_Shape_Optimization_of_Profile_Extrusion_Dies.pdf";
-		File fileEntry = new File(importData);
+		ClassLoader classLoader = getClass().getClassLoader();
+		File fileEntry =new File(classLoader.getResource("text/tbp.pdf").getFile());
 		ArrayList<PDF> pdfList = new ArrayList<PDF>();
 		File hack = new File(".");
 		String home = hack.getAbsolutePath();
