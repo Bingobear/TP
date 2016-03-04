@@ -19,8 +19,6 @@ public class PDFHandlerTest {
 	public void testCreateCorpus() throws LangDetectException {
 		ClassLoader classLoader = getClass().getClassLoader();
 		File folder =new File(classLoader.getResource("text").getFile());
-//		String importData = "c:/RWTH/Data/test/";
-//		File folder = new File(importData);
 		Corpus corpus = new Corpus();
 		ArrayList<PDF> pdfList = new ArrayList<PDF>();
 		boolean first = true;

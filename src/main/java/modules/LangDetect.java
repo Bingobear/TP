@@ -24,7 +24,8 @@ public class LangDetect {
 		}
 
 		if (AlgorithmUtil.first) {
-			DetectorFactory.loadProfile("res/profiles");
+			ClassLoader classLoader = getClass().getClassLoader();
+			DetectorFactory.loadProfile(classLoader.getResource("res/profiles").getFile());
 			AlgorithmUtil.first = false;
 		}
 		Detector detector = DetectorFactory.create();

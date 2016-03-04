@@ -26,8 +26,8 @@ public class LangDetectTest {
 	@Test(expected=LangDetectException.class)
 	public void testNoLangDetect() throws LangDetectException {
 		LangDetect detect = new LangDetect();
-		String lang = detect.detect("§$%&/()=", false);
-		assertEquals("unknown", lang); // unreached
+		String lang = detect.detect("32524624624", false);
+		assertEquals("hi", lang); // unreached
 	}
 
 }
