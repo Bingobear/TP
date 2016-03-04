@@ -18,7 +18,7 @@ public class PDFHandlerTest {
 	@Test
 	public void testCreateCorpus() throws LangDetectException {
 		ClassLoader classLoader = getClass().getClassLoader();
-		File folder =new File(classLoader.getResource("text").getFile());
+		File folder = new File(classLoader.getResource("text").getFile());
 		Corpus corpus = new Corpus();
 		ArrayList<PDF> pdfList = new ArrayList<PDF>();
 		boolean first = true;
@@ -31,26 +31,22 @@ public class PDFHandlerTest {
 	public void testCreatePDF() throws LangDetectException, IOException, InvalidPDF {
 		PDFHandler pdfh = new PDFHandler();
 		ClassLoader classLoader = getClass().getClassLoader();
-		File fileEntry =new File(classLoader.getResource("text/schaar_06038875.pdf").getFile());
+		File fileEntry = new File(classLoader.getResource("text/schaar_06038875.pdf").getFile());
 		ArrayList<PDF> pdfList = new ArrayList<PDF>();
-		File hack = new File(".");
-		String home = hack.getAbsolutePath();
-		String importtitle = home + "/importData/pdftitleo.csv";
+		String importtitle = classLoader.getResource("importData/pdftitleo.csv").getFile();
 		ArrayList<String> titles = pdfh.readCSVTitle(importtitle);
 		PDF pdf = new PDF();
 		pdf = pdfh.createPDF(fileEntry, true, pdfList, titles);
 		assertEquals(8, pdf.getPagecount());
 	}
-	
-	@Test(expected=InvalidPDF.class)
+
+	@Test(expected = InvalidPDF.class)
 	public void testCreatePDFFromPresentation() throws LangDetectException, IOException, InvalidPDF {
 		PDFHandler pdfh = new PDFHandler();
 		ClassLoader classLoader = getClass().getClassLoader();
-		File fileEntry =new File(classLoader.getResource("text/tbp.pdf").getFile());
+		File fileEntry = new File(classLoader.getResource("text/tbp.pdf").getFile());
 		ArrayList<PDF> pdfList = new ArrayList<PDF>();
-		File hack = new File(".");
-		String home = hack.getAbsolutePath();
-		String importtitle = home + "/importData/pdftitleo.csv";
+		String importtitle = classLoader.getResource("importData/pdftitleo.csv").getFile();
 		ArrayList<String> titles = pdfh.readCSVTitle(importtitle);
 		PDF pdf = new PDF();
 		pdf = pdfh.createPDF(fileEntry, true, pdfList, titles);
@@ -60,15 +56,12 @@ public class PDFHandlerTest {
 	@Test
 	public void testgetTitle() {
 		PDFHandler pdfh = new PDFHandler();
-		File hack = new File(".");
-		String home = hack.getAbsolutePath();
-		String importtitle = home + "/importData/pdftitleo.csv";
+		ClassLoader classLoader = getClass().getClassLoader();
+		String importtitle = classLoader.getResource("importData/pdftitleo.csv").getFile();
 		ArrayList<String> titles = pdfh.readCSVTitle(importtitle);
-		String title = pdfh.getTitle("himmel_et_al-older-users-wishlist", titles);
+		String title = pdfh.getTitle("schaar_06038875", titles);
 
-		assertEquals(
-				"Older Users Wish List for Technology Attributes: A Comparison of Household and Medical Technologies",
-				title);
+		assertEquals("Smart Clothing. Perceived Benefits vs. Perceived Fears", title);
 	}
 
 }

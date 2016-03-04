@@ -96,20 +96,13 @@ public class PDFHandler {
 	 */
 	public Corpus createCorpus(File folder, Corpus corpus,
 			ArrayList<PDF> pdfList, boolean first) throws LangDetectException {
-		File hack = new File(".");
-		String home = hack.getAbsolutePath();
-
 		// Not necessary, but for the cases when no corresponding publication is
 		// available
-		String importtitle = home + "/importData/pdftitleo.csv";
-//		System.out.println(importtitle);
+		ClassLoader classLoader = getClass().getClassLoader();
+		String importtitle = classLoader.getResource("importData/pdftitleo.csv").getFile();
 		ArrayList<String> titles = readCSVTitle(importtitle);
 		for (final File fileEntry : folder.listFiles()) {
 			if (fileEntry.isFile()) {
-
-//				System.out.println("File= " + folder.getAbsolutePath() + "\\"
-//						+ fileEntry.getName());
-
 				PDF pdf;
 				try {
 					pdf = createPDF(fileEntry, first, corpus.getPdfList(),
