@@ -16,7 +16,7 @@ import com.cybozu.labs.langdetect.LangDetectException;
 public class PDFHandlerTest {
 
 	@Test
-	public void testCreateCorpus() throws LangDetectException {
+	public void testCreateCorpus() throws LangDetectException, IOException {
 		ClassLoader classLoader = getClass().getClassLoader();
 		File folder = new File(classLoader.getResource("text").getFile());
 		Corpus corpus = new Corpus();
@@ -54,7 +54,7 @@ public class PDFHandlerTest {
 	}
 
 	@Test
-	public void testgetTitle() {
+	public void testgetTitle() throws IOException {
 		PDFHandler pdfh = new PDFHandler();
 		ClassLoader classLoader = getClass().getClassLoader();
 		String importtitle = classLoader.getResource("importData/pdftitleo.csv").getFile();

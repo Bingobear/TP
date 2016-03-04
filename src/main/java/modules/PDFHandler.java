@@ -5,8 +5,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.Reader;
 import java.text.Normalizer;
 import java.util.ArrayList;
+
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVRecord;
 
 import models.Corpus;
 import models.PDF;
@@ -66,8 +70,8 @@ public class PDFHandler {
 	 */
 	public Corpus parsePDFtoKey() throws LangDetectException, IOException {
 
-		String importData = "c:/RWTH/Data/test/";
-		File folder = new File(importData);
+		ClassLoader classLoader = getClass().getClassLoader();
+		File folder = new File(classLoader.getResource("text").getFile());
 		Corpus corpus = new Corpus();
 		ArrayList<PDF> pdfList = new ArrayList<PDF>();
 		boolean first = true;
@@ -93,9 +97,10 @@ public class PDFHandler {
 	 * @param first
 	 * @return corpus
 	 * @throws LangDetectException
+	 * @throws IOException 
 	 */
 	public Corpus createCorpus(File folder, Corpus corpus,
-			ArrayList<PDF> pdfList, boolean first) throws LangDetectException {
+			ArrayList<PDF> pdfList, boolean first) throws LangDetectException, IOException {
 		// Not necessary, but for the cases when no corresponding publication is
 		// available
 		ClassLoader classLoader = getClass().getClassLoader();
@@ -203,42 +208,52 @@ public class PDFHandler {
 	 * 
 	 * @param csvFile
 	 * @return
+	 * @throws IOException 
 	 */
-	ArrayList<String> readCSVTitle(String csvFile) {
+	ArrayList<String> readCSVTitle(String csvFile) throws IOException {
 		BufferedReader br = null;
 		String line = "";
 		String cvsSplitBy = ";";
 		ArrayList<String> titles = new ArrayList<String>();
 		String[] helper = null;
-
-		try {
-
-			br = new BufferedReader(new FileReader(csvFile));
-			while ((line = br.readLine()) != null) {
-
-				// use comma as separator
-
-				helper = line.split(cvsSplitBy);
-//				System.out.println(helper);
-				for (int counter = 0; counter < helper.length; counter++) {
-					titles.add(helper[counter]);
-				}
-
-			}
-
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			if (br != null) {
-				try {
-					br.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+		Reader in = new FileReader(csvFile);
+		Iterable<CSVRecord> records = CSVFormat.EXCEL.parse(in);
+		for (CSVRecord record : records) {
+			line = record.get(0);
+			helper = line.split(cvsSplitBy);
+		//	System.out.println(helper);
+			for (int counter = 0; counter < helper.length; counter++) {
+				titles.add(helper[counter]);
 			}
 		}
+//		try {
+//
+//			br = new BufferedReader(new FileReader(csvFile));
+//			while ((line = br.readLine()) != null) {
+//
+//				// use comma as separator
+//
+//				helper = line.split(cvsSplitBy);
+////				System.out.println(helper);
+//				for (int counter = 0; counter < helper.length; counter++) {
+//					titles.add(helper[counter]);
+//				}
+//
+//			}
+//
+//		} catch (FileNotFoundException e) {
+//			e.printStackTrace();
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		} finally {
+//			if (br != null) {
+//				try {
+//					br.close();
+//				} catch (IOException e) {
+//					e.printStackTrace();
+//				}
+//			}
+//		}
 
 //		System.out.println("Done");
 		return titles;
