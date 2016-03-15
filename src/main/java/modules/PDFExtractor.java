@@ -24,6 +24,7 @@ import com.cybozu.labs.langdetect.LangDetectException;
 //TODO Split into PDFExtractor & KeywordHandler
 public class PDFExtractor {
 
+    public static final int stepPages = 4;
     /**
      * PDF Extractor
      *
@@ -124,39 +125,26 @@ public class PDFExtractor {
         this.setPagenumber(pdDoc.getNumberOfPages());
         LangDetect lang = new LangDetect();
 
-        for (int counter = 0; counter < pdDoc.getNumberOfPages(); counter += 5) {
-            String parsedText = NLPUtil.parsePdftoString(pdfStripper, pdDoc, counter,
-                    counter + 4);
-            if (isValidPDF(counter, parsedText)) {
+        for (int startPage = 0; startPage < pdDoc.getNumberOfPages(); startPage += 5) {
+            int endPage = startPage + stepPages;
+            String parsedText = NLPUtil.parsePdftoString(pdfStripper, pdDoc, startPage,
+                    startPage + 4);
+            if (isValidPDF(startPage, parsedText)) {
                 setLang(lang.detect(parsedText));
 
-                if (counter == 0) {
-
+                if (isFirstPage(startPage)) {
+                    int firstTwoPages = startPage+1;
                     this.setTitlePage(NLPUtil.parsePdftoString(pdfStripper, pdDoc,
-                            counter, counter + 1));
+                            startPage, firstTwoPages));
                     if (isFragmentedPDF(getTitlePage(), pdfList)) {
                         throw new InvalidPDF();
                     }
 
                     parsedText = parsedText.toLowerCase();
                     String[] tokens = NLPUtil.getTokenPM(parsedText, this.language);
-                    ArrayList<Category> keywords = getKeywordsFromPDF(tokens,
+                    keywords = getKeywordsFromPDF(tokens,
                             fileEntry.getName());
-                    if (keywords.isEmpty()) {
-                        break;
-                    } else if ((keywords.size() < 4) || (keywords.size() > 8)) {
-                        if (this.titlePage.length() > endPosition) {
-                            this.titlePage = this.titlePage.substring(0,
-                                    endPosition - 1);
-                        }
-                        this.setKeywords(keywords);
-                    } else {
-                        if (this.titlePage.length() > endPosition) {
-                            this.titlePage = this.titlePage.substring(0,
-                                    endPosition - 1);
-                        }
-                        this.setKeywords(keywords);
-                    }
+                    optimizeTitlePageSize();
                 }
 
                 parsedText = parsedText.toLowerCase();
@@ -177,8 +165,19 @@ public class PDFExtractor {
         return result;
     }
 
+    private void optimizeTitlePageSize() {
+        if (this.titlePage.length() > endPosition) {
+            this.titlePage = this.titlePage.substring(0,
+                    endPosition - 1);
+        }
+    }
+
+    private boolean isFirstPage(int startPage) {
+        return startPage == 0;
+    }
+
     private boolean isValidPDF(int counter, String parsedText) {
-        return !((counter == 0) && (parsedText.length() < 50));
+        return !((isFirstPage(counter)) && (parsedText.length() < 50));
     }
 
     /**
@@ -277,7 +276,7 @@ public class PDFExtractor {
         int startPosition = KeywordUtil.findKeyWStart(textPDF);
 
         if (startPosition > 0) {
-        textPDF = extractStartKeywordPassage(textPDF);
+            textPDF = extractStartKeywordPassage(textPDF);
             endPosition = startPosition;
             endPosition = KeywordUtil.findKeyWEnd(textPDF);
 
