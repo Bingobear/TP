@@ -18,7 +18,7 @@ import models.Words;
 import Util.NLPUtil;
 
 import com.cybozu.labs.langdetect.LangDetectException;
-
+//TODO Split Class into PDFHANDLER & CORPUSHANDLER
 /**
  * Main Interface to initiate Textmining (pdf extractor)
  *
@@ -26,7 +26,6 @@ import com.cybozu.labs.langdetect.LangDetectException;
  */
 public class PDFHandler {
     // debug modes
-    private static boolean debug_extractor = true;
     private static boolean debug_calc = false;
     private static String title = "";
     private static File folder;
@@ -43,29 +42,7 @@ public class PDFHandler {
         corpus = new Corpus();
     }
 
-    /**
-     * Initiates corpus text mining - ranking
-     *
-     * @param args
-     */
-    public static void main(String[] args) {
-        // BasicConfigurator.configure();
-        PDFHandler app = new PDFHandler();
-        String pdfLocation = "text";
-        if (debug_extractor) {
-            try {
 
-                corpus = app.createCorpus(pdfLocation);
-            } catch (LangDetectException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
-
-    }
 
     /**
      * Main text mining method return parsed/calculated corpus (containing all
@@ -110,20 +87,25 @@ public class PDFHandler {
         // available
         for (final File fileEntry : folder.listFiles()) {
             if (fileEntry.isFile()) {
-                generatePDF(fileEntry);
+                generatePDFinCorpus(fileEntry);
 
             } else if (fileEntry.isDirectory()) {
-                fillCorpus(fileEntry);
+                if (isNotTitlesFolder(fileEntry)) {
+                    fillCorpus(fileEntry);
+                }
             }
         }
         return corpus;
     }
 
-    private void generatePDF(File fileEntry) throws LangDetectException {
+    private boolean isNotTitlesFolder(File fileEntry) {
+        return !fileEntry.getName().equals("titles");
+    }
+
+    private void generatePDFinCorpus(File fileEntry) throws LangDetectException {
         PDF pdf;
         try {
             pdf = createPDF(fileEntry);
-            pdf.setFilename(fileEntry.getName());
             addPDF2Corpus(pdf);
 
         } catch (IOException e) {
@@ -171,6 +153,7 @@ public class PDFHandler {
             if (!pdf.getGenericKeywords().isEmpty()) {
                 pdf.setFilename(fileEntry.getName());
                 pdf.setPagecount(extractor.getPagenumber());
+                pdf.setFilename(fileEntry.getName());
                 return pdf;
             }
         }
@@ -216,19 +199,16 @@ public class PDFHandler {
         String line = "";
         String cvsSplitBy = ";";
         ArrayList<String> titles = new ArrayList<String>();
-        String[] helper = null;
+        String[] titleEntries = null;
         Reader in = new FileReader(csvFile);
         Iterable<CSVRecord> records = CSVFormat.EXCEL.parse(in);
         for (CSVRecord record : records) {
             line = record.get(0);
-            helper = line.split(cvsSplitBy);
-            //	System.out.println(helper);
-            for (int counter = 0; counter < helper.length; counter++) {
-                titles.add(helper[counter]);
+            titleEntries = line.split(cvsSplitBy);
+            for (String currentTitle : titleEntries) {
+                titles.add(currentTitle);
             }
         }
         return titles;
     }
-
-
 }
