@@ -29,10 +29,18 @@ public class PDFHandler {
     private static boolean debug_extractor = true;
     private static boolean debug_calc = false;
     private static String title = "";
+    private static File folder;
     private ArrayList<String> titles;
-    private static Corpus corpus;
-    public PDFHandler() {
 
+    public static void setCorpus(Corpus corpus) {
+        PDFHandler.corpus = corpus;
+    }
+
+    private static Corpus corpus;
+
+    public PDFHandler() {
+        titles = new ArrayList<String>();
+        corpus = new Corpus();
     }
 
     /**
@@ -42,11 +50,12 @@ public class PDFHandler {
      */
     public static void main(String[] args) {
         // BasicConfigurator.configure();
-        corpus = null;
         PDFHandler app = new PDFHandler();
+        String pdfLocation = "text";
         if (debug_extractor) {
             try {
-                corpus = app.parsePDFtoKey();
+
+                corpus = app.createCorpus(pdfLocation);
             } catch (LangDetectException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -66,13 +75,11 @@ public class PDFHandler {
      * @throws LangDetectException
      * @throws IOException
      */
-    public Corpus parsePDFtoKey() throws LangDetectException, IOException {
-
-        ClassLoader classLoader = getClass().getClassLoader();
-        File folder = new File(classLoader.getResource("text").getFile());
-        ArrayList<PDF> pdfList = new ArrayList<PDF>();
-        corpus.setPdfList(pdfList);
-        corpus = createCorpus(folder);
+    public Corpus createCorpus(String pdfLocation) throws LangDetectException, IOException {
+        setFolder(pdfLocation);
+        setTitles(pdfLocation);
+        corpus = new Corpus();
+        corpus = fillCorpus(folder);
         if (debug_calc) {
             corpus.calculateIdf();
             corpus.setPdfList(corpus.calculateTD_IDF(corpus.getPdfList()));
@@ -85,6 +92,11 @@ public class PDFHandler {
 
     }
 
+    private void setFolder(String pdfLocation) {
+        ClassLoader classLoader = getClass().getClassLoader();
+        folder = new File(classLoader.getResource(pdfLocation).getFile());
+    }
+
     /**
      * Creates basic corpus -> text mining (word extraction,keyword,pdfs)
      *
@@ -93,63 +105,56 @@ public class PDFHandler {
      * @throws LangDetectException
      * @throws IOException
      */
-    public Corpus createCorpus(File folder) throws LangDetectException, IOException {
+    public Corpus fillCorpus(File folder) throws LangDetectException, IOException {
         // Not necessary, but for the cases when no corresponding publication is
         // available
-        ClassLoader classLoader = getClass().getClassLoader();
-        String importtitle = classLoader.getResource("importData/pdftitleo.csv").getFile();
-        ArrayList<String> titles = readCSVTitle(importtitle);
         for (final File fileEntry : folder.listFiles()) {
             if (fileEntry.isFile()) {
-                PDF pdf;
-                try {
-                    pdf = createPDF(fileEntry, corpus.getPdfList(),
-                            titles);
-                    // No keywords -> not valid pdf
-                    if (pdf != null) {
-                        if (!pdf.getGenericKeywords().isEmpty()) {
-                            pdf.setFilename(fileEntry.getName());
-                            corpus.incDocN(pdf.getLanguage());
-                            corpus.associateWordswithCategory(pdf);
-                            ArrayList<PDF> pdfTemList = corpus.getPdfList();
-                            pdfTemList.add(pdf);
-                            corpus.setPdfList(pdfTemList);
-                        }
-                    }
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-//					System.out.println("File corrupted: "+fileEntry);
-//					e.printStackTrace();
-                } catch (InvalidPDF e) {
-                    // TODO Auto-generated catch block
-//					e.printStackTrace();
-                }
+                generatePDF(fileEntry);
 
             } else if (fileEntry.isDirectory()) {
-//				System.out.println("Change Current Folder!");
-                createCorpus(fileEntry);
+                fillCorpus(fileEntry);
             }
         }
         return corpus;
+    }
+
+    private void generatePDF(File fileEntry) throws LangDetectException {
+        PDF pdf;
+        try {
+            pdf = createPDF(fileEntry);
+            pdf.setFilename(fileEntry.getName());
+            addPDF2Corpus(pdf);
+
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+        } catch (InvalidPDF e) {
+            // TODO Auto-generated catch block
+        }
+    }
+
+    private void addPDF2Corpus(PDF pdf) {
+        corpus.incDocN(pdf.getLanguage());
+        corpus.associateWordswithCategory(pdf);
+        ArrayList<PDF> pdfTemList = corpus.getPdfList();
+        pdfTemList.add(pdf);
+        corpus.setPdfList(pdfTemList);
     }
 
     /***
      * Generates the PDF with its corresponding informations from a given File
      *
      * @param fileEntry
-     * @param pdfList
-     * @param titles
      * @return
      * @throws LangDetectException
      * @throws IOException
      * @throws InvalidPDF
      */
-    public PDF createPDF(File fileEntry, ArrayList<PDF> pdfList,
-                         ArrayList<String> titles) throws LangDetectException, IOException, InvalidPDF {
+    public PDF createPDF(File fileEntry) throws LangDetectException, IOException, InvalidPDF {
         PDFExtractor extractor = new PDFExtractor();
 
         ArrayList<Words> words = new ArrayList<Words>();
-        words = extractor.parsePDFtoKey(fileEntry, pdfList);
+        words = extractor.parsePDFtoKey(fileEntry, corpus.getPdfList());
         if (words.size() > 0) {
 
             ArrayList<WordOcc> occ = NLPUtil.keyOcc(words);
@@ -160,7 +165,7 @@ public class PDFHandler {
 
             pdf.setCatnumb(extractor.getCatnumb());
             // RUDEMENTARY TITLE EXTRACTION VIA FILE
-            pdf.setTitle(getTitle(fileEntry.getName(), titles));
+            pdf.setTitle(getTitle(fileEntry.getName()));
 
             // No keywords -> not valid pdf
             if (!pdf.getGenericKeywords().isEmpty()) {
@@ -172,19 +177,23 @@ public class PDFHandler {
         throw new InvalidPDF();
     }
 
+    public void setTitles(String location) throws IOException {
+        ClassLoader classLoader = getClass().getClassLoader();
+        String importtitle = classLoader.getResource(location + "/titles/pdftitleo.csv").getFile();
+        titles = readCSVTitle(importtitle);
+    }
+
     /**
      * Maps the file names with the reference titles (csv). Work around for pdfs
      * that have no corresponding publication within the library information
      *
      * @param fileName (fileEntry.getName())
-     * @param titles
      * @return
      */
 
-    public String getTitle(String fileName, ArrayList<String> titles) {
+    public String getTitle(String fileName) {
         for (int ii = 0; ii < titles.size(); ii = ii + 2) {
             if (titles.get(ii).contains(fileName)) {
-//				System.out.println("FOUND:" + titles.get(ii + 1));
                 String titleNorm = Normalizer.normalize(titles.get(ii + 1),
                         Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "");
                 return titleNorm;
@@ -218,37 +227,8 @@ public class PDFHandler {
                 titles.add(helper[counter]);
             }
         }
-//		try {
-//
-//			br = new BufferedReader(new FileReader(csvFile));
-//			while ((line = br.readLine()) != null) {
-//
-//				// use comma as separator
-//
-//				helper = line.split(cvsSplitBy);
-////				System.out.println(helper);
-//				for (int counter = 0; counter < helper.length; counter++) {
-//					titles.add(helper[counter]);
-//				}
-//
-//			}
-//
-//		} catch (FileNotFoundException e) {
-//			e.printStackTrace();
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		} finally {
-//			if (br != null) {
-//				try {
-//					br.close();
-//				} catch (IOException e) {
-//					e.printStackTrace();
-//				}
-//			}
-//		}
-
-//		System.out.println("Done");
         return titles;
     }
+
 
 }
