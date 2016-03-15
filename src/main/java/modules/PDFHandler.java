@@ -1,20 +1,13 @@
 package modules;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.Reader;
+import java.io.*;
 import java.text.Normalizer;
 import java.util.ArrayList;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 
-import models.Corpus;
-import models.PDF;
-import models.WordOcc;
-import models.Words;
+import models.*;
 import Util.NLPUtil;
 
 import com.cybozu.labs.langdetect.LangDetectException;
@@ -83,8 +76,6 @@ public class PDFHandler {
      * @throws IOException
      */
     public Corpus fillCorpus(File folder) throws LangDetectException, IOException {
-        // Not necessary, but for the cases when no corresponding publication is
-        // available
         for (final File fileEntry : folder.listFiles()) {
             if (fileEntry.isFile()) {
                 generatePDFinCorpus(fileEntry);

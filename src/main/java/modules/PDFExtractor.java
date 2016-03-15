@@ -1,23 +1,17 @@
 package modules;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import models.Category;
-import models.PDF;
-import models.Words;
+import models.*;
 
 import org.apache.pdfbox.cos.COSDocument;
 import org.apache.pdfbox.pdfparser.PDFParser;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.util.PDFTextStripper;
 
-import Util.KeywordUtil;
-import Util.LogUtil;
-import Util.NLPUtil;
+import Util.*;
 
 import com.cybozu.labs.langdetect.LangDetectException;
 
@@ -25,7 +19,6 @@ import com.cybozu.labs.langdetect.LangDetectException;
  * Main Text Mining Class
  *
  * @author Simon Bruns
- *
  */
 public class PDFExtractor {
 
@@ -37,7 +30,7 @@ public class PDFExtractor {
     private String titlePage;
     private int catnumb;
     private int pagenumber;
-    private int endK = 0;
+    private int endPosition = 0;
     private String language;
     private ArrayList<Category> keywords = new ArrayList<Category>();
 
@@ -79,7 +72,9 @@ public class PDFExtractor {
         this.titlePage = titlePage;
     }
 
-    /**Retrieve number of categories for this pdf
+    /**
+     * Retrieve number of categories for this pdf
+     *
      * @return
      */
     public int getCatnumb() {
@@ -99,15 +94,12 @@ public class PDFExtractor {
     }
 
 
-
-
     /**
      * Parses PDFfile -> performs textmining: keyword-extraction,
      * word-extraction
      *
      * @param fileEntry
      * @param pdfList
-     *
      * @return ArrayList of words
      * @throws LangDetectException
      * @throws IOException
@@ -145,23 +137,21 @@ public class PDFExtractor {
                     }
 
                     parsedText = parsedText.toLowerCase();
-                    String[] tokens = NLPUtil.getTokenPM(parsedText,this.language);
+                    String[] tokens = NLPUtil.getTokenPM(parsedText, this.language);
                     ArrayList<Category> keywords = getKeywordsFromPDF(tokens,
                             fileEntry.getName());
                     if (keywords.isEmpty()) {
                         break;
                     } else if ((keywords.size() < 4) || (keywords.size() > 8)) {
-                        if (this.titlePage.length() > endK) {
+                        if (this.titlePage.length() > endPosition) {
                             this.titlePage = this.titlePage.substring(0,
-                                    endK - 1);
+                                    endPosition - 1);
                         }
                         this.setKeywords(keywords);
-                    }
-
-                    else {
-                        if (this.titlePage.length() > endK) {
+                    } else {
+                        if (this.titlePage.length() > endPosition) {
                             this.titlePage = this.titlePage.substring(0,
-                                    endK - 1);
+                                    endPosition - 1);
                         }
                         this.setKeywords(keywords);
                     }
@@ -170,9 +160,9 @@ public class PDFExtractor {
                 parsedText = parsedText.toLowerCase();
 
                 // sentence detector -> tokenizer
-                String[] tokens = NLPUtil.getToken(parsedText,this.language);
-                String[] filter = NLPUtil.posttags(tokens,this.language);
-                ArrayList<Words> words = NLPUtil.generateWords(filter, tokens, 0,this.getLang(),this.getKeywords());
+                String[] tokens = NLPUtil.getToken(parsedText, this.language);
+                String[] filter = NLPUtil.posttags(tokens, this.language);
+                ArrayList<Words> words = NLPUtil.generateWords(filter, tokens, 0, this.getLang(), this.getKeywords());
                 result.addAll(words);
                 wordcount = wordcount + tokens.length;
             } else {
@@ -181,7 +171,6 @@ public class PDFExtractor {
             }
         }
         cosDoc.close();
-//		System.out.println("FINAL RESULT:optimiertNouns:" + result.size());
         return result;
     }
 
@@ -213,39 +202,25 @@ public class PDFExtractor {
         return false;
     }
 
-    /**Extracts keywords from a given pdf (token string[]=tokenpm)
+    /**
+     * Extracts keywords from a given pdf (token string[]=tokenpm)
+     *
      * @param tokens
      * @param name
      * @return
      */
     private ArrayList<Category> getKeywordsFromPDF(String[] tokens, String name) {
-        ArrayList<Category> keywords = new ArrayList<Category>();
         ArrayList<String> textPDF = new ArrayList<String>(Arrays.asList(tokens));
-        int start = KeywordUtil.findKeyWStart(textPDF);
-        endK = start;
-        String seperator = "";
-        if (start > 0) {
+        ArrayList<String> keywordPassage = extractKeywordPassage(textPDF);
+        String seperator="";
+        if (!keywordPassage.isEmpty()) {
 
-            if (textPDF.get(start).equals(":")) {
-                start++;
-            }
-            if (textPDF.get(start).contains("keywords")) {
-                String value = textPDF.get(start);
-                textPDF.set(start, value.replaceAll("keywords", ""));
-            }
-            if (textPDF.get(start).contains("terms")) {
-                String value = textPDF.get(start);
-                textPDF.set(start, value.replaceAll("terms", ""));
-            }
-            textPDF = new ArrayList<String>(textPDF.subList(start,
-                    textPDF.size() - 1));
-            int end = KeywordUtil.findKeyWEnd(textPDF);
-            textPDF = new ArrayList<String>(textPDF.subList(0, end));
             seperator = KeywordUtil.findSep(textPDF);
             String akronom = "";
             String currKey = "";
             for (int ii = 0; ii < textPDF.size(); ii++) {
                 if (textPDF.get(ii).equals(seperator)) {
+
                     if (!akronom.isEmpty()) {
                         currKey = currKey.replaceAll("(" + akronom + ")", "");
                         currKey = currKey.replace(")", "");
@@ -253,7 +228,7 @@ public class PDFExtractor {
                     currKey = currKey.replaceFirst("[^\\p{L}]+", "");
                     currKey = currKey.trim();
                     String normKey = currKey.replaceAll("[^\\p{L}]+", "");
-                    if ((!currKey.isEmpty()) && (!normKey.isEmpty())) {
+                    if (isValidKeyword(currKey, normKey)) {
                         keywords.add(new Category(currKey, normKey, akronom));
                     }
                     akronom = "";
@@ -268,35 +243,69 @@ public class PDFExtractor {
 
                 }
             }
-            if ((currKey.length() < 100) && (currKey.length() > 2)) {
-                if ((currKey.charAt(currKey.length() - 1) == '1')
-                        && (!currKey.isEmpty())) {
-                    currKey = currKey.replace("1", "");
-                }
-                if (!akronom.isEmpty()) {
-                    currKey = currKey.replaceAll("(" + akronom + ")", "");
-                    currKey = currKey.replace(")", "");
-                }
-                currKey = currKey.replaceFirst("[^\\p{L}]+", "");
-                if (currKey.endsWith(".")) {
-                    currKey = currKey.substring(0, currKey.length() - 1);
-                }
-                currKey = currKey.trim();
-                String normKey = currKey.replaceAll("[^\\p{L}]+", "");
-                if ((!currKey.isEmpty()) && (!normKey.isEmpty())) {
-                    keywords.add(new Category(currKey, normKey, akronom));
-                }
+            if (isLastKeywordValid(currKey)) {
+                resolveLastKeyword(akronom, currKey);
             }
         }
 
         setCatnumb(keywords.size());
         try {
-            LogUtil.writelog(keywords, name, seperator, textPDF.size(),this.language);
+            LogUtil.writelog(keywords, name, seperator, textPDF.size(), this.language);
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
 
         return keywords;
+    }
+
+    private ArrayList<String> extractKeywordPassage(ArrayList<String> textPDF) {
+        int startPosition = KeywordUtil.findKeyWStart(textPDF);
+        endPosition = startPosition;
+
+        if (textPDF.get(startPosition).equals(":")) {
+            startPosition++;
+        }
+        if (textPDF.get(startPosition).contains("keywords")) {
+            String value = textPDF.get(startPosition);
+            textPDF.set(startPosition, value.replaceAll("keywords", ""));
+        }
+        if (textPDF.get(startPosition).contains("terms")) {
+            String value = textPDF.get(startPosition);
+            textPDF.set(startPosition, value.replaceAll("terms", ""));
+        }
+        textPDF = new ArrayList<String>(textPDF.subList(startPosition,
+                textPDF.size() - 1));
+        int end = KeywordUtil.findKeyWEnd(textPDF);
+        textPDF = new ArrayList<String>(textPDF.subList(0, end));
+        return textPDF;
+    }
+
+    private void resolveLastKeyword(String akronom, String currKey) {
+        if ((currKey.charAt(currKey.length() - 1) == '1')
+                && (!currKey.isEmpty())) {
+            currKey = currKey.replace("1", "");
+        }
+        if (!akronom.isEmpty()) {
+            currKey = currKey.replaceAll("(" + akronom + ")", "");
+            currKey = currKey.replace(")", "");
+        }
+        currKey = currKey.replaceFirst("[^\\p{L}]+", "");
+        if (currKey.endsWith(".")) {
+            currKey = currKey.substring(0, currKey.length() - 1);
+        }
+        currKey = currKey.trim();
+        String normKey = currKey.replaceAll("[^\\p{L}]+", "");
+        if (isValidKeyword(currKey, normKey)) {
+            keywords.add(new Category(currKey, normKey, akronom));
+        }
+    }
+
+    private boolean isLastKeywordValid(String currKey) {
+        return (currKey.length() < 100) && (currKey.length() > 2);
+    }
+
+    private boolean isValidKeyword(String currKey, String normKey) {
+        return (!currKey.isEmpty()) && (!normKey.isEmpty());
     }
 }
