@@ -18,6 +18,7 @@ import com.cybozu.labs.langdetect.LangDetectException;
  * @author Simon Bruns
  */
 public class PDFHandler {
+    public static final double TFICF_THRESHOLD = 0.00001;
     // debug modes
     private static boolean debug_calc = false;
     private static String title = "";
@@ -55,7 +56,7 @@ public class PDFHandler {
             corpus.setPdfList(corpus.calculateTD_IDF(corpus.getPdfList()));
 
             corpus.initializeTFICFCalc();
-            corpus.filterTFICF(0.00001);
+            corpus.filterTFICF(TFICF_THRESHOLD);
             corpus.calculateAllPDFCatRel();
         }
         return corpus;
@@ -90,7 +91,7 @@ public class PDFHandler {
     }
 
     private boolean isNotTitlesFolder(File fileEntry) {
-        return !fileEntry.getName().equals("titles");
+        return !fileEntry.getName().contains("titles");
     }
 
     private void generatePDFinCorpus(File fileEntry) throws LangDetectException {

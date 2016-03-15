@@ -25,6 +25,7 @@ import com.cybozu.labs.langdetect.LangDetectException;
 public class PDFExtractor {
 
     public static final int stepPages = 4;
+    public static final int FILTER_WORTTYPE_MODE = 0;
     /**
      * PDF Extractor
      *
@@ -128,7 +129,7 @@ public class PDFExtractor {
         for (int startPage = 0; startPage < pdDoc.getNumberOfPages(); startPage += 5) {
             int endPage = startPage + stepPages;
             String parsedText = NLPUtil.parsePdftoString(pdfStripper, pdDoc, startPage,
-                    startPage + 4);
+                    endPage);
             if (isValidPDF(startPage, parsedText)) {
                 setLang(lang.detect(parsedText));
 
@@ -152,7 +153,7 @@ public class PDFExtractor {
                 // sentence detector -> tokenizer
                 String[] tokens = NLPUtil.getToken(parsedText, this.language);
                 String[] filter = NLPUtil.posttags(tokens, this.language);
-                ArrayList<Words> words = NLPUtil.generateWords(filter, tokens, 0, this.getLang(), this.getKeywords());
+                ArrayList<Words> words = NLPUtil.generateWords(filter, tokens, FILTER_WORTTYPE_MODE, this.getLang(), this.getKeywords());
                 result.addAll(words);
                 wordcount = wordcount + tokens.length;
             } else {
