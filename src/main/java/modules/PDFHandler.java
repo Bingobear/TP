@@ -130,7 +130,7 @@ public class PDFHandler {
 
         ArrayList<WordOcc> wordOccs = extractWordsAndOccs(fileEntry, extractor);
         PDF pdf = fillPDF(fileEntry, extractor, wordOccs);
-        
+
         if (hasKeywords(pdf)) {
             return pdf;
         }
