@@ -1,6 +1,7 @@
 package modules;
 
 import java.io.*;
+import java.lang.reflect.Array;
 import java.text.Normalizer;
 import java.util.ArrayList;
 
@@ -12,6 +13,7 @@ import Util.NLPUtil;
 
 import com.cybozu.labs.langdetect.LangDetectException;
 //TODO Split Class into PDFHANDLER & CORPUSHANDLER
+
 /**
  * Main Interface to initiate Textmining (pdf extractor)
  *
@@ -35,7 +37,6 @@ public class PDFHandler {
         titles = new ArrayList<String>();
         corpus = new Corpus();
     }
-
 
 
     /**
@@ -127,29 +128,40 @@ public class PDFHandler {
     public PDF createPDF(File fileEntry) throws LangDetectException, IOException, InvalidPDF {
         PDFExtractor extractor = new PDFExtractor();
 
-        ArrayList<Words> words = new ArrayList<Words>();
-        words = extractor.parsePDFtoKey(fileEntry, corpus.getPdfList());
-        if (words.size() > 0) {
-
-            ArrayList<WordOcc> occ = NLPUtil.keyOcc(words);
-
-            PDF pdf = new PDF(occ, extractor.getLang(),
-                    extractor.getWordcount(), extractor.getTitlePage());
-            pdf.setGenericKeywords(extractor.getKeywords());
-
-            pdf.setCatnumb(extractor.getCatnumb());
-            // RUDEMENTARY TITLE EXTRACTION VIA FILE
-            pdf.setTitle(getTitle(fileEntry.getName()));
-
-            // No keywords -> not valid pdf
-            if (!pdf.getGenericKeywords().isEmpty()) {
-                pdf.setFilename(fileEntry.getName());
-                pdf.setPagecount(extractor.getPagenumber());
-                pdf.setFilename(fileEntry.getName());
-                return pdf;
-            }
+        ArrayList<WordOcc> wordOccs = extractWordsAndOccs(fileEntry, extractor);
+        PDF pdf = fillPDF(fileEntry, extractor, wordOccs);
+        
+        if (hasKeywords(pdf)) {
+            return pdf;
         }
         throw new InvalidPDF();
+    }
+
+    private ArrayList<WordOcc> extractWordsAndOccs(File fileEntry, PDFExtractor extractor) throws LangDetectException, IOException, InvalidPDF {
+        ArrayList<Words> words = new ArrayList<Words>();
+        ArrayList<WordOcc> wordOccs = new ArrayList<WordOcc>();
+        words = extractor.parsePDFtoKey(fileEntry, corpus.getPdfList());
+        if (words.size() > 0) {
+            wordOccs = NLPUtil.keyOcc(words);
+        }
+        return wordOccs;
+    }
+
+    private PDF fillPDF(File fileEntry, PDFExtractor extractor, ArrayList<WordOcc> occ) {
+        PDF pdf = new PDF(occ, extractor.getLang(),
+                extractor.getWordcount(), extractor.getTitlePage());
+        pdf.setGenericKeywords(extractor.getKeywords());
+
+        pdf.setCatnumb(extractor.getCatnumb());
+        pdf.setTitle(getTitle(fileEntry.getName()));
+
+        pdf.setFilename(fileEntry.getName());
+        pdf.setPagecount(extractor.getPagenumber());
+        return pdf;
+    }
+
+    private boolean hasKeywords(PDF pdf) {
+        return pdf.getCatnumb() > 0;
     }
 
     public void setTitles(String location) throws IOException {
