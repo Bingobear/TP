@@ -23,7 +23,7 @@ public class PDFHandlerTest {
 		ArrayList<PDF> pdfList = new ArrayList<PDF>();
 		boolean first = true;
 		PDFHandler pdfh = new PDFHandler();
-		corpus = pdfh.createCorpus(folder, corpus, pdfList, first);
+		corpus = pdfh.createCorpus(folder);
 		assertEquals(2, corpus.getPdfList().size());
 	}
 
@@ -36,7 +36,7 @@ public class PDFHandlerTest {
 		String importtitle = classLoader.getResource("importData/pdftitleo.csv").getFile();
 		ArrayList<String> titles = pdfh.readCSVTitle(importtitle);
 		PDF pdf = new PDF();
-		pdf = pdfh.createPDF(fileEntry, true, pdfList, titles);
+		pdf = pdfh.createPDF(fileEntry, pdfList, titles);
 		assertEquals(8, pdf.getPagecount());
 	}
 
@@ -49,7 +49,7 @@ public class PDFHandlerTest {
 		String importtitle = classLoader.getResource("importData/pdftitleo.csv").getFile();
 		ArrayList<String> titles = pdfh.readCSVTitle(importtitle);
 		PDF pdf = new PDF();
-		pdf = pdfh.createPDF(fileEntry, true, pdfList, titles);
+		pdf = pdfh.createPDF(fileEntry, pdfList, titles);
 		assertEquals(12, pdf.getPagecount());
 	}
 

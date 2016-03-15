@@ -14,7 +14,7 @@ import com.cybozu.labs.langdetect.LangDetectException;
  */
 public class LangDetect {
 
-	public String detect(String parsedText, boolean first)
+	public String detect(String parsedText)
 			throws LangDetectException {
 		String text = "";
 		if (parsedText.length() < 150) {

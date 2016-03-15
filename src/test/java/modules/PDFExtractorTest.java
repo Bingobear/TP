@@ -20,7 +20,7 @@ public class PDFExtractorTest {
 		File fileEntry =new File(classLoader.getResource("text/schaar_06038875.pdf").getFile());
 		ArrayList<PDF> pdfList = new ArrayList<PDF>();
 		PDFExtractor extract = new PDFExtractor();
-		assertEquals(2062,extract.parsePDFtoKey(fileEntry, true, pdfList).size());
+		assertEquals(2062,extract.parsePDFtoKey(fileEntry, pdfList).size());
 	}
 
 	@Test
@@ -29,7 +29,7 @@ public class PDFExtractorTest {
 		File fileEntry =new File(classLoader.getResource("text/tbp.pdf").getFile());
 		ArrayList<PDF> pdfList = new ArrayList<PDF>();
 		PDFExtractor extract = new PDFExtractor();
-		assertEquals(0,extract.parsePDFtoKey(fileEntry, true, pdfList).size());
+		assertEquals(0,extract.parsePDFtoKey(fileEntry,  pdfList).size());
 	}
 	
 	@Test(expected=NullPointerException.class)
@@ -37,7 +37,7 @@ public class PDFExtractorTest {
 		File fileEntry = null;
 		ArrayList<PDF> pdfList = new ArrayList<PDF>();
 		PDFExtractor extract = new PDFExtractor();
-		assertEquals(2062,extract.parsePDFtoKey(fileEntry, true, pdfList).size());
+		assertEquals(2062,extract.parsePDFtoKey(fileEntry, pdfList).size());
 	}
 	
 }

@@ -11,7 +11,7 @@ public class LangDetectTest {
 	@Test
 	public void testGerDetect() throws LangDetectException {
 		LangDetect detect = new LangDetect();
-		String lang = detect.detect("Guten Abend die Herren", false);
+		String lang = detect.detect("Guten Abend die Herren");
 		assertEquals("de", lang);
 	}
 
@@ -19,14 +19,14 @@ public class LangDetectTest {
 	public void testEngDetect() throws LangDetectException {
 		LangDetect detect = new LangDetect();
 		String lang = detect.detect(
-				"Hello darkness my old friend. Nice to see you again", false);
+				"Hello darkness my old friend. Nice to see you again");
 		assertEquals("en", lang);
 	}
 	
 	@Test(expected=LangDetectException.class)
 	public void testNoLangDetect() throws LangDetectException {
 		LangDetect detect = new LangDetect();
-		String lang = detect.detect("32524624624", false);
+		String lang = detect.detect("32524624624");
 		assertEquals("hi", lang); // unreached
 	}
 
