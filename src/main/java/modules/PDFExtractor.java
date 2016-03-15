@@ -215,11 +215,11 @@ public class PDFExtractor {
         String seperator="";
         if (!keywordPassage.isEmpty()) {
 
-            seperator = KeywordUtil.findSep(textPDF);
+            seperator = KeywordUtil.findSep(keywordPassage);
             String akronom = "";
             String currKey = "";
-            for (int ii = 0; ii < textPDF.size(); ii++) {
-                if (textPDF.get(ii).equals(seperator)) {
+            for (int ii = 0; ii < keywordPassage.size(); ii++) {
+                if (keywordPassage.get(ii).equals(seperator)) {
 
                     if (!akronom.isEmpty()) {
                         currKey = currKey.replaceAll("(" + akronom + ")", "");
@@ -234,12 +234,12 @@ public class PDFExtractor {
                     akronom = "";
                     currKey = "";
 
-                } else if (textPDF.get(ii).contains("(")) {
-                    akronom = KeywordUtil.getAkronom(new ArrayList<String>(textPDF.subList(
-                            ii, textPDF.size())));
+                } else if (keywordPassage.get(ii).contains("(")) {
+                    akronom = KeywordUtil.getAkronom(new ArrayList<String>(keywordPassage.subList(
+                            ii, keywordPassage.size())));
                 } else {
 
-                    currKey = currKey + " " + textPDF.get(ii);
+                    currKey = currKey + " " + keywordPassage.get(ii);
 
                 }
             }
@@ -261,7 +261,20 @@ public class PDFExtractor {
 
     private ArrayList<String> extractKeywordPassage(ArrayList<String> textPDF) {
         int startPosition = KeywordUtil.findKeyWStart(textPDF);
+        textPDF= extractStartKeywordPassage(textPDF);
+
         endPosition = startPosition;
+        endPosition = KeywordUtil.findKeyWEnd(textPDF);
+        textPDF = extractEndKeywordPassage(textPDF);
+        return textPDF;
+    }
+
+    private ArrayList<String> extractEndKeywordPassage(ArrayList<String> textPDF) {
+        return new ArrayList<String>(textPDF.subList(0, endPosition));
+    }
+
+    private ArrayList<String> extractStartKeywordPassage(ArrayList<String> textPDF) {
+        int startPosition = KeywordUtil.findKeyWStart(textPDF);
 
         if (textPDF.get(startPosition).equals(":")) {
             startPosition++;
@@ -274,11 +287,8 @@ public class PDFExtractor {
             String value = textPDF.get(startPosition);
             textPDF.set(startPosition, value.replaceAll("terms", ""));
         }
-        textPDF = new ArrayList<String>(textPDF.subList(startPosition,
+        return new ArrayList<String>(textPDF.subList(startPosition,
                 textPDF.size() - 1));
-        int end = KeywordUtil.findKeyWEnd(textPDF);
-        textPDF = new ArrayList<String>(textPDF.subList(0, end));
-        return textPDF;
     }
 
     private void resolveLastKeyword(String akronom, String currKey) {

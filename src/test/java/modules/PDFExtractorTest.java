@@ -15,7 +15,7 @@ import com.cybozu.labs.langdetect.LangDetectException;
 public class PDFExtractorTest {
 
     @Test
-    public void testParsePDFtoKey() throws LangDetectException, IOException {
+    public void testgetPDFKeywords() throws LangDetectException, IOException {
         ClassLoader classLoader = getClass().getClassLoader();
         File fileEntry =new File(classLoader.getResource("text/schaar_06038875.pdf").getFile());
         ArrayList<PDF> pdfList = new ArrayList<PDF>();
@@ -25,7 +25,7 @@ public class PDFExtractorTest {
     }
 
     @Test
-    public void testgetPDFKeywords() throws LangDetectException, IOException {
+    public void testParsePDFtoKey() throws LangDetectException, IOException {
         ClassLoader classLoader = getClass().getClassLoader();
         File fileEntry =new File(classLoader.getResource("text/schaar_06038875.pdf").getFile());
         ArrayList<PDF> pdfList = new ArrayList<PDF>();
