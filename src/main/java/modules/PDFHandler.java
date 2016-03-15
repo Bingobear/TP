@@ -141,22 +141,25 @@ public class PDFHandler {
         ArrayList<Words> words = new ArrayList<Words>();
         ArrayList<WordOcc> wordOccs = new ArrayList<WordOcc>();
         words = extractor.parsePDFtoKey(fileEntry, corpus.getPdfList());
-        if (words.size() > 0) {
+        if (hasWords(words)) {
             wordOccs = NLPUtil.keyOcc(words);
         }
         return wordOccs;
+    }
+
+    private boolean hasWords(ArrayList<Words> words) {
+        return words.size() > 0;
     }
 
     private PDF fillPDF(File fileEntry, PDFExtractor extractor, ArrayList<WordOcc> occ) {
         PDF pdf = new PDF(occ, extractor.getLang(),
                 extractor.getWordcount(), extractor.getTitlePage());
         pdf.setGenericKeywords(extractor.getKeywords());
-
         pdf.setCatnumb(extractor.getCatnumb());
         pdf.setTitle(getTitle(fileEntry.getName()));
-
         pdf.setFilename(fileEntry.getName());
         pdf.setPagecount(extractor.getPagenumber());
+
         return pdf;
     }
 

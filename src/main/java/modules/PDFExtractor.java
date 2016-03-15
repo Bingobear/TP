@@ -134,7 +134,7 @@ public class PDFExtractor {
                 setLang(lang.detect(parsedText));
 
                 if (isFirstPage(startPage)) {
-                    int firstTwoPages = startPage+1;
+                    int firstTwoPages = startPage + 1;
                     this.setTitlePage(NLPUtil.parsePdftoString(pdfStripper, pdDoc,
                             startPage, firstTwoPages));
                     if (isFragmentedPDF(getTitlePage(), pdfList)) {
@@ -143,8 +143,7 @@ public class PDFExtractor {
 
                     parsedText = parsedText.toLowerCase();
                     String[] tokens = NLPUtil.getTokenPM(parsedText, this.language);
-                    keywords = getKeywordsFromPDF(tokens,
-                            fileEntry.getName());
+                    getKeywordsPDF(fileEntry, tokens);
                     optimizeTitlePageSize();
                 }
 
@@ -164,6 +163,13 @@ public class PDFExtractor {
         }
         cosDoc.close();
         return result;
+    }
+
+    private void getKeywordsPDF(File fileEntry, String[] tokens) throws InvalidPDF {
+        KeywordHandler keywordHandler = new KeywordHandler();
+        keywords = keywordHandler.getKeywordsFromPDF(tokens);
+        setCatnumb(keywords.size());
+        endPosition = keywordHandler.getEndPosition();
     }
 
     private void optimizeTitlePageSize() {
@@ -203,136 +209,5 @@ public class PDFExtractor {
             }
         }
         return false;
-    }
-
-    /**
-     * Extracts keywords from a given pdf (token string[]=tokenpm)
-     *
-     * @param tokens
-     * @param name
-     * @return
-     */
-    private ArrayList<Category> getKeywordsFromPDF(String[] tokens, String name) throws InvalidPDF {
-        ArrayList<String> textPDF = new ArrayList<String>(Arrays.asList(tokens));
-        ArrayList<String> keywordPassage = extractKeywordPassage(textPDF);
-        String seperator = "";
-        if (!keywordPassage.isEmpty()) {
-
-            seperator = KeywordUtil.findSep(keywordPassage);
-            String akronom = "";
-            String currKey = "";
-            for (int ii = 0; ii < keywordPassage.size(); ii++) {
-                if (keywordPassage.get(ii).equals(seperator)) {
-
-                    resolveCurrentKeyword(akronom, currKey);
-                    akronom = "";
-                    currKey = "";
-
-                } else if (keywordPassage.get(ii).contains("(")) {
-                    akronom = KeywordUtil.getAkronom(new ArrayList<String>(keywordPassage.subList(
-                            ii, keywordPassage.size())));
-                } else {
-
-                    currKey = currKey + " " + keywordPassage.get(ii);
-
-                }
-            }
-            if (isLastKeywordValid(currKey)) {
-                resolveLastKeyword(akronom, currKey);
-            }
-            setCatnumb(keywords.size());
-        }
-
-
-        /*try {
-            LogUtil.writelog(keywords, name, seperator, textPDF.size(), this.language);
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }*/
-
-        return keywords;
-    }
-
-    private void resolveCurrentKeyword(String akronom, String currKey) {
-        currKey = removeAkronomFromKeyword(akronom, currKey);
-        currKey = currKey.replaceFirst("[^\\p{L}]+", "");
-        currKey = currKey.trim();
-        String normKey = currKey.replaceAll("[^\\p{L}]+", "");
-        if (isValidKeyword(currKey, normKey)) {
-            keywords.add(new Category(currKey, normKey, akronom));
-        }
-    }
-
-    private String removeAkronomFromKeyword(String akronom, String currKey) {
-        if (!akronom.isEmpty()) {
-            currKey = currKey.replaceAll("(" + akronom + ")", "");
-            currKey = currKey.replace(")", "");
-        }
-        return currKey;
-    }
-
-    private ArrayList<String> extractKeywordPassage(ArrayList<String> textPDF) throws InvalidPDF {
-        ArrayList<String> extractedPassage = new ArrayList<String>();
-        int startPosition = KeywordUtil.findKeyWStart(textPDF);
-
-        if (startPosition > 0) {
-            textPDF = extractStartKeywordPassage(textPDF);
-            endPosition = startPosition;
-            endPosition = KeywordUtil.findKeyWEnd(textPDF);
-
-            extractedPassage = extractEndKeywordPassage(textPDF);
-            return extractedPassage;
-        } else {
-            throw new InvalidPDF();
-        }
-
-    }
-
-    private ArrayList<String> extractEndKeywordPassage(ArrayList<String> textPDF) {
-        return new ArrayList<String>(textPDF.subList(0, endPosition));
-    }
-
-    private ArrayList<String> extractStartKeywordPassage(ArrayList<String> textPDF) {
-        int startPosition = KeywordUtil.findKeyWStart(textPDF);
-
-        if (textPDF.get(startPosition).equals(":")) {
-            startPosition++;
-        }
-        if (textPDF.get(startPosition).contains("keywords")) {
-            String value = textPDF.get(startPosition);
-            textPDF.set(startPosition, value.replaceAll("keywords", ""));
-        }
-        if (textPDF.get(startPosition).contains("terms")) {
-            String value = textPDF.get(startPosition);
-            textPDF.set(startPosition, value.replaceAll("terms", ""));
-        }
-        return new ArrayList<String>(textPDF.subList(startPosition,
-                textPDF.size() - 1));
-    }
-
-    private void resolveLastKeyword(String akronom, String currKey) {
-        if ((currKey.charAt(currKey.length() - 1) == '1')
-                && (!currKey.isEmpty())) {
-            currKey = currKey.replace("1", "");
-        }
-        removeAkronomFromKeyword(akronom, currKey);
-        currKey = currKey.replaceFirst("[^\\p{L}]+", "");
-        if (currKey.endsWith(".")) {
-            currKey = currKey.substring(0, currKey.length() - 1);
-        }
-        currKey = currKey.trim();
-        String normKey = currKey.replaceAll("[^\\p{L}]+", "");
-        if (isValidKeyword(currKey, normKey)) {
-            keywords.add(new Category(currKey, normKey, akronom));
-        }
-    }
-
-    private boolean isLastKeywordValid(String currKey) {
-        return (currKey.length() < 100) && (currKey.length() > 2);
-    }
-
-    private boolean isValidKeyword(String currKey, String normKey) {
-        return (!currKey.isEmpty()) && (!normKey.isEmpty());
     }
 }
