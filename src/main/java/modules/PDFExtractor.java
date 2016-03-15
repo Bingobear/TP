@@ -20,6 +20,8 @@ import com.cybozu.labs.langdetect.LangDetectException;
  *
  * @author Simon Bruns
  */
+
+//TODO Split into PDFExtractor & KeywordHandler
 public class PDFExtractor {
 
     /**
@@ -105,7 +107,7 @@ public class PDFExtractor {
      * @throws IOException
      */
     public ArrayList<Words> parsePDFtoKey(File fileEntry,
-                                          ArrayList<PDF> pdfList) throws LangDetectException, IOException {
+                                          ArrayList<PDF> pdfList) throws LangDetectException, IOException, InvalidPDF {
         ArrayList<Words> result = new ArrayList<Words>();
 //        Preparation Objects to read PDF
         PDFTextStripper pdfStripper = null;
@@ -132,8 +134,8 @@ public class PDFExtractor {
 
                     this.setTitlePage(NLPUtil.parsePdftoString(pdfStripper, pdDoc,
                             counter, counter + 1));
-                    if (isFragmentedPDF(this.getTitlePage(), pdfList)) {
-                        break;
+                    if (isFragmentedPDF(getTitlePage(), pdfList)) {
+                        throw new InvalidPDF();
                     }
 
                     parsedText = parsedText.toLowerCase();
@@ -166,8 +168,9 @@ public class PDFExtractor {
                 result.addAll(words);
                 wordcount = wordcount + tokens.length;
             } else {
-                System.out.println("Bad Paper or Presentation");
-                break;
+                throw new InvalidPDF();
+
+
             }
         }
         cosDoc.close();
@@ -209,10 +212,10 @@ public class PDFExtractor {
      * @param name
      * @return
      */
-    private ArrayList<Category> getKeywordsFromPDF(String[] tokens, String name) {
+    private ArrayList<Category> getKeywordsFromPDF(String[] tokens, String name) throws InvalidPDF {
         ArrayList<String> textPDF = new ArrayList<String>(Arrays.asList(tokens));
         ArrayList<String> keywordPassage = extractKeywordPassage(textPDF);
-        String seperator="";
+        String seperator = "";
         if (!keywordPassage.isEmpty()) {
 
             seperator = KeywordUtil.findSep(keywordPassage);
@@ -221,16 +224,7 @@ public class PDFExtractor {
             for (int ii = 0; ii < keywordPassage.size(); ii++) {
                 if (keywordPassage.get(ii).equals(seperator)) {
 
-                    if (!akronom.isEmpty()) {
-                        currKey = currKey.replaceAll("(" + akronom + ")", "");
-                        currKey = currKey.replace(")", "");
-                    }
-                    currKey = currKey.replaceFirst("[^\\p{L}]+", "");
-                    currKey = currKey.trim();
-                    String normKey = currKey.replaceAll("[^\\p{L}]+", "");
-                    if (isValidKeyword(currKey, normKey)) {
-                        keywords.add(new Category(currKey, normKey, akronom));
-                    }
+                    resolveCurrentKeyword(akronom, currKey);
                     akronom = "";
                     currKey = "";
 
@@ -246,27 +240,53 @@ public class PDFExtractor {
             if (isLastKeywordValid(currKey)) {
                 resolveLastKeyword(akronom, currKey);
             }
+            setCatnumb(keywords.size());
         }
 
-        setCatnumb(keywords.size());
-        try {
+
+        /*try {
             LogUtil.writelog(keywords, name, seperator, textPDF.size(), this.language);
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        }
+        }*/
 
         return keywords;
     }
 
-    private ArrayList<String> extractKeywordPassage(ArrayList<String> textPDF) {
-        int startPosition = KeywordUtil.findKeyWStart(textPDF);
-        textPDF= extractStartKeywordPassage(textPDF);
+    private void resolveCurrentKeyword(String akronom, String currKey) {
+        currKey = removeAkronomFromKeyword(akronom, currKey);
+        currKey = currKey.replaceFirst("[^\\p{L}]+", "");
+        currKey = currKey.trim();
+        String normKey = currKey.replaceAll("[^\\p{L}]+", "");
+        if (isValidKeyword(currKey, normKey)) {
+            keywords.add(new Category(currKey, normKey, akronom));
+        }
+    }
 
-        endPosition = startPosition;
-        endPosition = KeywordUtil.findKeyWEnd(textPDF);
-        textPDF = extractEndKeywordPassage(textPDF);
-        return textPDF;
+    private String removeAkronomFromKeyword(String akronom, String currKey) {
+        if (!akronom.isEmpty()) {
+            currKey = currKey.replaceAll("(" + akronom + ")", "");
+            currKey = currKey.replace(")", "");
+        }
+        return currKey;
+    }
+
+    private ArrayList<String> extractKeywordPassage(ArrayList<String> textPDF) throws InvalidPDF {
+        ArrayList<String> extractedPassage = new ArrayList<String>();
+        int startPosition = KeywordUtil.findKeyWStart(textPDF);
+
+        if (startPosition > 0) {
+        textPDF = extractStartKeywordPassage(textPDF);
+            endPosition = startPosition;
+            endPosition = KeywordUtil.findKeyWEnd(textPDF);
+
+            extractedPassage = extractEndKeywordPassage(textPDF);
+            return extractedPassage;
+        } else {
+            throw new InvalidPDF();
+        }
+
     }
 
     private ArrayList<String> extractEndKeywordPassage(ArrayList<String> textPDF) {
@@ -296,10 +316,7 @@ public class PDFExtractor {
                 && (!currKey.isEmpty())) {
             currKey = currKey.replace("1", "");
         }
-        if (!akronom.isEmpty()) {
-            currKey = currKey.replaceAll("(" + akronom + ")", "");
-            currKey = currKey.replace(")", "");
-        }
+        removeAkronomFromKeyword(akronom, currKey);
         currKey = currKey.replaceFirst("[^\\p{L}]+", "");
         if (currKey.endsWith(".")) {
             currKey = currKey.substring(0, currKey.length() - 1);

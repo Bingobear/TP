@@ -14,27 +14,8 @@ import com.cybozu.labs.langdetect.LangDetectException;
 
 public class PDFExtractorTest {
 
-    @Test
-    public void testgetPDFKeywords() throws LangDetectException, IOException {
-        ClassLoader classLoader = getClass().getClassLoader();
-        File fileEntry =new File(classLoader.getResource("text/schaar_06038875.pdf").getFile());
-        ArrayList<PDF> pdfList = new ArrayList<PDF>();
-        PDFExtractor extract = new PDFExtractor();
-        extract.parsePDFtoKey(fileEntry, pdfList);
-        assertEquals(6,extract.getCatnumb());
-    }
-
-    @Test
-    public void testParsePDFtoKey() throws LangDetectException, IOException {
-        ClassLoader classLoader = getClass().getClassLoader();
-        File fileEntry =new File(classLoader.getResource("text/schaar_06038875.pdf").getFile());
-        ArrayList<PDF> pdfList = new ArrayList<PDF>();
-        PDFExtractor extract = new PDFExtractor();
-        assertEquals(2062,extract.parsePDFtoKey(fileEntry, pdfList).size());
-    }
-
-    @Test
-    public void testParsePrestoKey() throws LangDetectException, IOException {
+    @Test(expected=InvalidPDF.class)
+    public void testParsePrestoKey() throws LangDetectException, IOException, InvalidPDF {
         ClassLoader classLoader = getClass().getClassLoader();
         File fileEntry =new File(classLoader.getResource("text/tbp.pdf").getFile());
         ArrayList<PDF> pdfList = new ArrayList<PDF>();
@@ -43,11 +24,29 @@ public class PDFExtractorTest {
     }
 
     @Test(expected=NullPointerException.class)
-    public void testParseNoPDFtoKey() throws LangDetectException, IOException {
+    public void testParseNoPDFtoKey() throws LangDetectException, IOException, InvalidPDF {
         File fileEntry = null;
         ArrayList<PDF> pdfList = new ArrayList<PDF>();
         PDFExtractor extract = new PDFExtractor();
         assertEquals(2062,extract.parsePDFtoKey(fileEntry, pdfList).size());
     }
 
+    @Test
+    public void testParsePDFtoKey() throws LangDetectException, IOException, InvalidPDF {
+        ClassLoader classLoader = getClass().getClassLoader();
+        File fileEntry =new File(classLoader.getResource("text/schaar_06038875.pdf").getFile());
+        ArrayList<PDF> pdfList = new ArrayList<PDF>();
+        PDFExtractor extract = new PDFExtractor();
+        assertEquals(2062,extract.parsePDFtoKey(fileEntry, pdfList).size());
+    }
+
+    @Test
+    public void testgetPDFKeywords() throws LangDetectException, IOException, InvalidPDF {
+        ClassLoader classLoader = getClass().getClassLoader();
+        File fileEntry =new File(classLoader.getResource("text/schaar_06038875.pdf").getFile());
+        ArrayList<PDF> pdfList = new ArrayList<PDF>();
+        PDFExtractor extract = new PDFExtractor();
+        extract.parsePDFtoKey(fileEntry, pdfList);
+        assertEquals(6,extract.getCatnumb());
+    }
 }

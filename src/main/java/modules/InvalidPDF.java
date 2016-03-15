@@ -6,6 +6,7 @@ public class InvalidPDF extends Exception {
 	
 	public InvalidPDF () {
         super("No valid PDF data found!");
+        System.out.println("No valid PDF data found!");
     }
 
 }
