@@ -2,7 +2,6 @@ package modules;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import models.*;
 
@@ -103,13 +102,11 @@ public class PDFExtractor {
      * word-extraction
      *
      * @param fileEntry
-     * @param pdfList
      * @return ArrayList of words
      * @throws LangDetectException
      * @throws IOException
      */
-    public ArrayList<Words> parsePDFtoKey(File fileEntry,
-                                          ArrayList<PDF> pdfList) throws LangDetectException, IOException, InvalidPDF {
+    public ArrayList<Words> parsePDFtoKey(File fileEntry) throws LangDetectException, IOException, InvalidPDF {
         ArrayList<Words> result = new ArrayList<Words>();
 //        Preparation Objects to read PDF
         PDFTextStripper pdfStripper = null;
@@ -137,9 +134,9 @@ public class PDFExtractor {
                     int firstTwoPages = startPage + 1;
                     this.setTitlePage(NLPUtil.parsePdftoString(pdfStripper, pdDoc,
                             startPage, firstTwoPages));
-                    if (isFragmentedPDF(getTitlePage(), pdfList)) {
-                        throw new InvalidPDF();
-                    }
+//                    if (isFragmentedPDF(getTitlePage(), pdfList)) {
+//                        throw new InvalidPDF();
+//                    }
 
                     parsedText = parsedText.toLowerCase();
                     String[] tokens = NLPUtil.getTokenPM(parsedText, this.language);

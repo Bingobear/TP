@@ -19,7 +19,7 @@ public class KeywordHandlerTest {
         String[] testKeywords = new String[]{"Abstract", "keyword", ":", "Optimization", ",", "LaserSD", ",",
                 "Information Visualization", ",", "DesigningIS", ",", "ObjectiveOP", ".", "Introduction"};
         ArrayList<Category> cats = keywordHandler.getKeywordsFromPDF(testKeywords);
-        assertEquals(2, cats.size());
+        assertEquals(5, cats.size());
     }
 
     @Test
@@ -27,7 +27,7 @@ public class KeywordHandlerTest {
         KeywordHandler keywordHandler = new KeywordHandler();
         String[] testKeywords = new String[]{"Abstract", "keyword", ":", "Optimization", ",", "LaserSD", ".", "Introduction"};
         ArrayList<Category> cats = keywordHandler.getKeywordsFromPDF(testKeywords);
-        assertEquals(5, cats.size());
+        assertEquals(2, cats.size());
     }
 
     @Test

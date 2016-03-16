@@ -33,7 +33,7 @@ public class KeywordHandler {
         ArrayList<String> textPDF = new ArrayList<String>(Arrays.asList(tokens));
         ArrayList<String> keywordPassage = extractKeywordPassage(textPDF);
         if (!keywordPassage.isEmpty()) {
-
+≤
             seperator = KeywordUtil.findSep(keywordPassage);
             akronom = "";
             currKey = "";

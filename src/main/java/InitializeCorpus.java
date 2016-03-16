@@ -1,5 +1,7 @@
 import com.cybozu.labs.langdetect.LangDetectException;
 import models.Corpus;
+import modules.CorpusHandler;
+import modules.InvalidPDF;
 import modules.PDFHandler;
 
 import java.io.IOException;
@@ -16,7 +18,7 @@ public class InitializeCorpus {
     private static boolean debug_extractor = true;
     public static void main(String[] args) {
         // BasicConfigurator.configure();
-        PDFHandler app = new PDFHandler();
+        CorpusHandler app = new CorpusHandler();
         String pdfLocation = "text";
         if (debug_extractor) {
             try {
@@ -28,6 +30,8 @@ public class InitializeCorpus {
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
+            } catch (InvalidPDF invalidPDF) {
+                invalidPDF.printStackTrace();
             }
         }
 
