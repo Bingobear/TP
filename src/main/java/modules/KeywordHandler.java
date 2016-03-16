@@ -58,15 +58,6 @@ public class KeywordHandler {
             }
             setCatnumb(keywords.size());
         }
-
-
-        /*try {
-            LogUtil.writelog(keywords, name, seperator, textPDF.size(), this.language);
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }*/
-
         return keywords;
     }
 
