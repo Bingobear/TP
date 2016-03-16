@@ -134,9 +134,10 @@ public class PDFExtractor {
                     int firstTwoPages = startPage + 1;
                     this.setTitlePage(NLPUtil.parsePdftoString(pdfStripper, pdDoc,
                             startPage, firstTwoPages));
-//                    if (isFragmentedPDF(getTitlePage(), pdfList)) {
-//                        throw new InvalidPDF();
-//                    }
+/*              TODO: Check if Code necessary
+               if (isFragmentedPDF(getTitlePage(), pdfList)) {
+                        throw new InvalidPDF();
+                    }*/
 
                     parsedText = parsedText.toLowerCase();
                     String[] tokens = NLPUtil.getTokenPM(parsedText, this.language);
