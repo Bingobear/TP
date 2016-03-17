@@ -339,16 +339,14 @@ public class NLPUtil {
     /**
      * Converts x pages (end-start) pdf to String
      *
-     * @param pdfStripper
      * @param pdDoc
      * @param start       (starting page)
      * @param end         (ending page)
      * @return
      * @throws IOException
      */
-    public static String parsePdftoString(PDFTextStripper pdfStripper,
-                                          PDDocument pdDoc, int start, int end) throws IOException {
-
+    public static String parsePdftoString(PDDocument pdDoc, int start, int end) throws IOException {
+        PDFTextStripper pdfStripper = new PDFTextStripper();
         pdfStripper.setStartPage(start);
         pdfStripper.setEndPage(end);
         String parsedText = pdfStripper.getText(pdDoc);

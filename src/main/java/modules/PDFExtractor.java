@@ -21,9 +21,13 @@ import com.cybozu.labs.langdetect.LangDetectException;
  */
 
 public class PDFExtractor {
-
-    public static final int stepPages = 4;
+;
     public static final int FILTER_WORTTYPE_MODE = 0;
+    public static final int steps = 5;
+    public static final int stepPages = steps-1;
+
+    private COSDocument cosDoc;
+    private PDDocument pdDoc;
 
     private String titlePage;
     private int catnumb;
@@ -45,30 +49,21 @@ public class PDFExtractor {
     public ArrayList<Words> parsePDFtoKey(File fileEntry) throws LangDetectException, IOException, InvalidPDF {
         ArrayList<Words> result = new ArrayList<Words>();
 //        Preparation Objects to read PDF
-        PDFTextStripper pdfStripper = null;
-        PDDocument pdDoc = null;
-        COSDocument cosDoc = null;
-        setTitlePage(fileEntry.getName());
 
-        PDFParser parser = new PDFParser(new FileInputStream(fileEntry));
-        parser.parse();
-        cosDoc = parser.getDocument();
-        pdfStripper = new PDFTextStripper();
-
-        pdDoc = new PDDocument(cosDoc);
-        this.setPagenumber(pdDoc.getNumberOfPages());
+        pdDoc = parsePDFDocument(fileEntry);
+        setPagenumber(pdDoc.getNumberOfPages());
         LangDetect lang = new LangDetect();
 
-        for (int startPage = 0; startPage < pdDoc.getNumberOfPages(); startPage += 5) {
+        for (int startPage = 0; startPage < pdDoc.getNumberOfPages(); startPage += steps) {
             int endPage = startPage + stepPages;
-            String parsedText = NLPUtil.parsePdftoString(pdfStripper, pdDoc, startPage,
+            String parsedText = NLPUtil.parsePdftoString(pdDoc, startPage,
                     endPage);
             if (isValidPDF(startPage, parsedText)) {
                 setLang(lang.detect(parsedText));
 
                 if (isFirstPage(startPage)) {
                     int firstTwoPages = startPage + 1;
-                    this.setTitlePage(NLPUtil.parsePdftoString(pdfStripper, pdDoc,
+                    this.setTitlePage(NLPUtil.parsePdftoString(pdDoc,
                             startPage, firstTwoPages));
                     parsedText = parsedText.toLowerCase();
                     String[] tokens = NLPUtil.getTokenPM(parsedText, this.language);
@@ -92,6 +87,18 @@ public class PDFExtractor {
         }
         cosDoc.close();
         return result;
+    }
+
+    private PDDocument parsePDFDocument(File fileEntry) throws IOException {
+        PDFParser parser = initializePDFParser(fileEntry);
+        cosDoc= parser.getDocument();
+        return new PDDocument(cosDoc);
+    }
+
+    private PDFParser initializePDFParser(File fileEntry) throws IOException {
+        PDFParser parser = new PDFParser(new FileInputStream(fileEntry));
+        parser.parse();
+        return parser;
     }
 
 
