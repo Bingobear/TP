@@ -72,7 +72,7 @@ public class PDFExtractor {
                             startPage, firstTwoPages));
                     parsedText = parsedText.toLowerCase();
                     String[] tokens = NLPUtil.getTokenPM(parsedText, this.language);
-                    getKeywordsPDF(fileEntry, tokens);
+                    getKeywordsPDF(tokens);
                     optimizeTitlePageSize();
                 }
 
@@ -95,9 +95,9 @@ public class PDFExtractor {
     }
 
 
-    private void getKeywordsPDF(File fileEntry, String[] tokens) throws InvalidPDF {
+    private void getKeywordsPDF(String[] tokens) throws InvalidPDF {
         KeywordHandler keywordHandler = new KeywordHandler();
-        keywords = keywordHandler.getKeywordsFromPDF(tokens);
+        setKeywords(keywordHandler.getKeywordsFromPDF(tokens));
         setCatnumb(keywords.size());
         endPosition = keywordHandler.getEndPosition();
     }

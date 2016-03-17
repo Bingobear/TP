@@ -13,27 +13,19 @@ import java.util.ArrayList;
  *TODO Remove statics
  */
 public class CorpusHandler {
-    public static final double TFICF_THRESHOLD = 0.00001;
-    // debug modes
+    private static final double TFICF_THRESHOLD = 0.00001;
+    private static final boolean debug_calc = false;
+    private File folder;
 
     private PDFHandler pdfHandler;
-    private static boolean debug_calc = false;
-    private static File folder;
     private TitleHandler titleHandler;
-
     private Corpus corpus;
-
-    public void setCorpus(Corpus newcorpus) {
-        corpus = newcorpus;
-    }
-
 
     public CorpusHandler() {
         corpus = new Corpus();
         titleHandler = new TitleHandler();
         pdfHandler = new PDFHandler();
     }
-
 
     /**
      * Main text mining method return parsed/calculated corpus (containing all
@@ -93,10 +85,10 @@ public class CorpusHandler {
         return corpus;
     }
 
-
     private boolean isNotTitlesFolder(File fileEntry) {
         return !fileEntry.getName().contains("titles");
     }
+
 
     private void addPDF2Corpus(PDF pdf) {
         corpus.incDocN(pdf.getLanguage());
@@ -104,6 +96,10 @@ public class CorpusHandler {
         ArrayList<PDF> pdfTemList = corpus.getPdfList();
         pdfTemList.add(pdf);
         corpus.setPdfList(pdfTemList);
+    }
+
+    public void setCorpus(Corpus newCorpus) {
+        corpus = newCorpus;
     }
 
 }

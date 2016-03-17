@@ -16,8 +16,11 @@ import java.util.ArrayList;
  * @author Simon Bruns
  */
 public class PDFHandler {
-    private static final double TFICF_THRESHOLD = 0.00001;
-    private static final boolean debug_calc = false;
+    private PDFExtractor extractor;
+
+    public PDFHandler(){
+        extractor = new PDFExtractor();
+    }
 
     public PDF generatePDFContent(File fileEntry) throws LangDetectException, IOException, InvalidPDF {
         return createPDF(fileEntry);
@@ -33,10 +36,9 @@ public class PDFHandler {
      * @throws InvalidPDF
      */
     private PDF createPDF(File fileEntry) throws LangDetectException, IOException, InvalidPDF {
-        PDFExtractor extractor = new PDFExtractor();
 
-        ArrayList<WordOcc> wordOccs = extractWordsAndOccs(fileEntry, extractor);
-        PDF pdf = fillPDF(fileEntry, extractor, wordOccs);
+        ArrayList<WordOcc> wordOccurences = extractWordsAndOccs(fileEntry);
+        PDF pdf = fillPDF(fileEntry,wordOccurences);
 
         if (hasKeywords(pdf)) {
             return pdf;
@@ -46,7 +48,7 @@ public class PDFHandler {
 
 
 
-    private ArrayList<WordOcc> extractWordsAndOccs(File fileEntry, PDFExtractor extractor) throws LangDetectException, IOException, InvalidPDF {
+    private ArrayList<WordOcc> extractWordsAndOccs(File fileEntry) throws LangDetectException, IOException, InvalidPDF {
         ArrayList<Words> words;
         ArrayList<WordOcc> wordOccs = new ArrayList<WordOcc>();
         words = extractor.parsePDFtoKey(fileEntry);
@@ -60,12 +62,8 @@ public class PDFHandler {
         return words.size() > 0;
     }
 
-    private PDF fillPDF(File fileEntry, PDFExtractor extractor, ArrayList<WordOcc> occ) {
-        PDF pdf = new PDF(occ, extractor.getLang(),
-                extractor.getWordcount(), extractor.getTitlePage());
-        pdf.setGenericKeywords(extractor.getKeywords());
-        pdf.setCatnumb(extractor.getCatnumb());
-        pdf.setPagecount(extractor.getPagenumber());
+    private PDF fillPDF(File fileEntry, ArrayList<WordOcc> occ) {
+        PDF pdf = new PDF(occ, extractor);
         pdf.setFilename(fileEntry.getName());
 
         return pdf;
