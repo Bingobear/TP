@@ -20,82 +20,18 @@ import com.cybozu.labs.langdetect.LangDetectException;
  * @author Simon Bruns
  */
 
-//TODO Split into PDFExtractor & KeywordHandler
 public class PDFExtractor {
 
     public static final int stepPages = 4;
     public static final int FILTER_WORTTYPE_MODE = 0;
-    /**
-     * PDF Extractor
-     *
-     * @throws IOException
-     */
+
     private String titlePage;
     private int catnumb;
     private int pagenumber;
     private int endPosition = 0;
+    private int wordcount = 0;
     private String language;
     private ArrayList<Category> keywords = new ArrayList<Category>();
-
-    public ArrayList<Category> getKeywords() {
-        return keywords;
-    }
-
-    public void setKeywords(ArrayList<Category> keywords) {
-        this.keywords = keywords;
-    }
-
-    private int wordcount = 0;
-
-    public int getWordcount() {
-        return wordcount;
-    }
-
-    PDFExtractor() {
-
-    }
-
-    PDFExtractor(String lang) {
-        this.language = lang;
-    }
-
-    public void setLang(String lang) {
-        this.language = lang;
-    }
-
-    public String getLang() {
-        return this.language;
-    }
-
-    public String getTitlePage() {
-        return titlePage;
-    }
-
-    public void setTitlePage(String titlePage) {
-        this.titlePage = titlePage;
-    }
-
-    /**
-     * Retrieve number of categories for this pdf
-     *
-     * @return
-     */
-    public int getCatnumb() {
-        return catnumb;
-    }
-
-    public void setCatnumb(int catnumb) {
-        this.catnumb = catnumb;
-    }
-
-    public int getPagenumber() {
-        return pagenumber;
-    }
-
-    public void setPagenumber(int pagenumber) {
-        this.pagenumber = pagenumber;
-    }
-
 
     /**
      * Parses PDFfile -> performs textmining: keyword-extraction,
@@ -134,11 +70,6 @@ public class PDFExtractor {
                     int firstTwoPages = startPage + 1;
                     this.setTitlePage(NLPUtil.parsePdftoString(pdfStripper, pdDoc,
                             startPage, firstTwoPages));
-/*              TODO: Check if Code necessary
-               if (isFragmentedPDF(getTitlePage(), pdfList)) {
-                        throw new InvalidPDF();
-                    }*/
-
                     parsedText = parsedText.toLowerCase();
                     String[] tokens = NLPUtil.getTokenPM(parsedText, this.language);
                     getKeywordsPDF(fileEntry, tokens);
@@ -163,6 +94,7 @@ public class PDFExtractor {
         return result;
     }
 
+
     private void getKeywordsPDF(File fileEntry, String[] tokens) throws InvalidPDF {
         KeywordHandler keywordHandler = new KeywordHandler();
         keywords = keywordHandler.getKeywordsFromPDF(tokens);
@@ -185,27 +117,47 @@ public class PDFExtractor {
         return !((isFirstPage(counter)) && (parsedText.length() < 50));
     }
 
-    /**
-     * Test if PDF is complete and not fragmented after parsing it
-     *
-     * @param titlepage
-     * @param pdfList
-     * @return
-     */
-    private boolean isFragmentedPDF(String titlepage, ArrayList<PDF> pdfList) {
-        int sublength = 20;
-        for (PDF compare : pdfList) {
-            if (titlepage.length() < 20) {
-                sublength = titlepage.length() - 1;
-            }
-            if (compare.getFirstPage().length() < sublength) {
-                sublength = compare.getFirstPage().length() - 1;
-            }
-            if (compare.getFirstPage().substring(0, sublength)
-                    .equals(titlepage.substring(0, sublength))) {
-                return true;
-            }
-        }
-        return false;
+    public ArrayList<Category> getKeywords() {
+        return keywords;
+    }
+
+    private void setKeywords(ArrayList<Category> keywords) {
+        this.keywords = keywords;
+    }
+
+    public int getWordcount() {
+        return wordcount;
+    }
+
+    private void setLang(String lang) {
+        this.language = lang;
+    }
+
+    public String getLang() {
+        return this.language;
+    }
+
+    public String getTitlePage() {
+        return titlePage;
+    }
+
+    private void setTitlePage(String titlePage) {
+        this.titlePage = titlePage;
+    }
+
+    public int getCatnumb() {
+        return catnumb;
+    }
+
+    private void setCatnumb(int catnumb) {
+        this.catnumb = catnumb;
+    }
+
+    public int getPagenumber() {
+        return pagenumber;
+    }
+
+    private void setPagenumber(int pagenumber) {
+        this.pagenumber = pagenumber;
     }
 }

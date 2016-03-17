@@ -17,7 +17,6 @@ public class Words {
 
 	
 	public Words() {
-		// TODO Auto-generated constructor stub
 	}
 	
 	public Words(String word, String stem, String type,ArrayList<Category> cat) {

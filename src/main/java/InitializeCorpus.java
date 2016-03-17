@@ -25,10 +25,8 @@ public class InitializeCorpus {
 
                 Corpus corpus = app.createCorpus(pdfLocation);
             } catch (LangDetectException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             } catch (IOException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             } catch (InvalidPDF invalidPDF) {
                 invalidPDF.printStackTrace();

@@ -2,7 +2,6 @@ package modules;
 
 import Util.NLPUtil;
 import com.cybozu.labs.langdetect.LangDetectException;
-import models.Corpus;
 import models.PDF;
 import models.WordOcc;
 import models.Words;
@@ -10,7 +9,6 @@ import models.Words;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-//TODO Split Class into PDFHANDLER & CORPUSHANDLER
 
 /**
  * Main Interface to initiate Textmining (pdf extractor)
@@ -18,27 +16,12 @@ import java.util.ArrayList;
  * @author Simon Bruns
  */
 public class PDFHandler {
-    public static final double TFICF_THRESHOLD = 0.00001;
-    // debug modes
-    private static boolean debug_calc = false;
-    private static File folder;
-
-    public static void setCorpus(Corpus corpus) {
-        PDFHandler.corpus = corpus;
-    }
-
-    private static Corpus corpus;
-
-    public PDFHandler() {
-    }
-
-
+    private static final double TFICF_THRESHOLD = 0.00001;
+    private static final boolean debug_calc = false;
 
     public PDF generatePDFContent(File fileEntry) throws LangDetectException, IOException, InvalidPDF {
         return createPDF(fileEntry);
     }
-
-
 
     /***
      * Generates the PDF with its corresponding informations from a given File
@@ -61,8 +44,10 @@ public class PDFHandler {
         throw new InvalidPDF();
     }
 
+
+
     private ArrayList<WordOcc> extractWordsAndOccs(File fileEntry, PDFExtractor extractor) throws LangDetectException, IOException, InvalidPDF {
-        ArrayList<Words> words = new ArrayList<Words>();
+        ArrayList<Words> words;
         ArrayList<WordOcc> wordOccs = new ArrayList<WordOcc>();
         words = extractor.parsePDFtoKey(fileEntry);
         if (hasWords(words)) {
@@ -89,7 +74,4 @@ public class PDFHandler {
     private boolean hasKeywords(PDF pdf) {
         return pdf.getCatnumb() > 0;
     }
-
-
-
 }

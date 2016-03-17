@@ -13,14 +13,9 @@ public class KeywordHandler {
 
     private ArrayList<Category> keywords = new ArrayList<Category>();
     private String akronom;
-    private String currKey;
+    private String currentKeyword;
     private String seperator;
     private int catnumb;
-
-    public int getEndPosition() {
-        return endPosition;
-    }
-
     private int endPosition;
 
     /**
@@ -35,47 +30,47 @@ public class KeywordHandler {
         if (!keywordPassage.isEmpty()) {
             seperator = KeywordUtil.findSep(keywordPassage);
             akronom = "";
-            currKey = "";
+            currentKeyword = "";
             for (int ii = 0; ii < keywordPassage.size(); ii++) {
                 if (keywordPassage.get(ii).equals(seperator)) {
 
                     resolveCurrentKeyword();
                     akronom = "";
-                    currKey = "";
+                    currentKeyword = "";
 
                 } else if (keywordPassage.get(ii).contains("(")) {
                     akronom = KeywordUtil.getAkronom(new ArrayList<String>(keywordPassage.subList(
                             ii, keywordPassage.size())));
                 } else {
 
-                    currKey = currKey + " " + keywordPassage.get(ii);
+                    currentKeyword = currentKeyword + " " + keywordPassage.get(ii);
 
                 }
             }
             if (isLastKeywordValid()) {
                 resolveLastKeyword();
             }
-            setCatnumb(keywords.size());
+            setNumberofCategories(keywords.size());
         }
         return keywords;
     }
 
     private void resolveCurrentKeyword() {
-        currKey = removeAkronomFromKeyword();
-        currKey = currKey.replaceFirst("[^\\p{L}]+", "");
-        currKey = currKey.trim();
-        String normKey = currKey.replaceAll("[^\\p{L}]+", "");
+        currentKeyword = removeAkronomFromKeyword();
+        currentKeyword = currentKeyword.replaceFirst("[^\\p{L}]+", "");
+        currentKeyword = currentKeyword.trim();
+        String normKey = currentKeyword.replaceAll("[^\\p{L}]+", "");
         if (isValidKeyword(normKey)) {
-            keywords.add(new Category(currKey, normKey, akronom));
+            keywords.add(new Category(currentKeyword, normKey, akronom));
         }
     }
 
     private String removeAkronomFromKeyword() {
         if (!akronom.isEmpty()) {
-            currKey = currKey.replaceAll("(" + akronom + ")", "");
-            currKey = currKey.replace(")", "");
+            currentKeyword = currentKeyword.replaceAll("(" + akronom + ")", "");
+            currentKeyword = currentKeyword.replace(")", "");
         }
-        return currKey;
+        return currentKeyword;
     }
 
     private ArrayList<String> extractKeywordPassage(ArrayList<String> textPDF) throws InvalidPDF {
@@ -118,32 +113,36 @@ public class KeywordHandler {
     }
 
     private void resolveLastKeyword() {
-        if ((currKey.charAt(currKey.length() - 1) == '1')
-                && (!currKey.isEmpty())) {
-            currKey = currKey.replace("1", "");
+        if ((currentKeyword.charAt(currentKeyword.length() - 1) == '1')
+                && (!currentKeyword.isEmpty())) {
+            currentKeyword = currentKeyword.replace("1", "");
         }
         removeAkronomFromKeyword();
-        currKey = currKey.replaceFirst("[^\\p{L}]+", "");
-        if (currKey.endsWith(".")) {
-            currKey = currKey.substring(0, currKey.length() - 1);
+        currentKeyword = currentKeyword.replaceFirst("[^\\p{L}]+", "");
+        if (currentKeyword.endsWith(".")) {
+            currentKeyword = currentKeyword.substring(0, currentKeyword.length() - 1);
         }
-        currKey = currKey.trim();
-        String normKey = currKey.replaceAll("[^\\p{L}]+", "");
+        currentKeyword = currentKeyword.trim();
+        String normKey = currentKeyword.replaceAll("[^\\p{L}]+", "");
         if (isValidKeyword(normKey)) {
-            keywords.add(new Category(currKey, normKey, akronom));
+            keywords.add(new Category(currentKeyword, normKey, akronom));
         }
     }
 
     private boolean isLastKeywordValid() {
-        return (currKey.length() < 100) && (currKey.length() > 2);
+        return (currentKeyword.length() < 100) && (currentKeyword.length() > 2);
     }
 
     private boolean isValidKeyword(String normKey) {
-        return (!currKey.isEmpty()) && (!normKey.isEmpty());
+        return (!currentKeyword.isEmpty()) && (!normKey.isEmpty());
     }
 
-    public void setCatnumb(int catnumb) {
-        this.catnumb = catnumb;
+    private void setNumberofCategories(int numberofCategories) {
+        this.catnumb = numberofCategories;
+    }
+
+    public int getEndPosition() {
+        return endPosition;
     }
 }
 

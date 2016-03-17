@@ -20,7 +20,6 @@ public class Category {
         this.title = title;
     }
     public Category() {
-        // TODO Auto-generated constructor stub
     }
     public Category(String name) {
         this.setTitle(name);
@@ -43,7 +42,6 @@ public class Category {
         return this.relevance;
     }
 
-    //TODO Not relevance but #t in cat
     public void setwOcc(int relevance) {
         this.wOcc = relevance;
     }

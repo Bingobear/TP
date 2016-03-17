@@ -95,7 +95,6 @@ public class NLPUtil {
                             result.add(word);
                         }
                     } else {
-                        // MAYBE SOLVES PROBLEM?TODO
                         String text = tokens[ii].replaceAll(
                                 "[^\\p{L}\\p{Nd}]+", "");
                         if ((!text.isEmpty()) && (text.length() > 1)) {
@@ -118,7 +117,6 @@ public class NLPUtil {
                             result.add(word);
                         }
                     } else {
-                        // MAYBE SOLVES PROBLEM?TODO
                         String text = tokens[ii].replaceAll(
                                 "[^\\p{L}\\p{Nd}]+", "");
                         if ((!text.isEmpty()) && (text.length() > 1)) {

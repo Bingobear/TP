@@ -35,7 +35,6 @@ public class WordOcc {
 
 
 
-	// TODO DELETE PDF STUFF
 	public WordOcc(WordOcc another) {
 		this.word = new Words(word);
 		this.occ = another.occ;

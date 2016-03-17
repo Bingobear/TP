@@ -7,7 +7,6 @@ package Util;
 public class AlgorithmUtil {
 public static boolean first = true;
 	public AlgorithmUtil() {
-		// TODO Auto-generated constructor stub
 	}
 	/**
 	 * @param tPDFocc - occurrence of term t in pdf

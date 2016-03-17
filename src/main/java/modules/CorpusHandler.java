@@ -10,6 +10,7 @@ import java.util.ArrayList;
 
 /**
  * Created by simonbruns on 16/03/16.
+ *TODO Remove statics
  */
 public class CorpusHandler {
     public static final double TFICF_THRESHOLD = 0.00001;
@@ -20,9 +21,9 @@ public class CorpusHandler {
     private static File folder;
     private TitleHandler titleHandler;
 
-    private static Corpus corpus;
+    private Corpus corpus;
 
-    public static void setCorpus(Corpus newcorpus) {
+    public void setCorpus(Corpus newcorpus) {
         corpus = newcorpus;
     }
 
@@ -44,7 +45,7 @@ public class CorpusHandler {
      */
     public Corpus createCorpus(String pdfLocation) throws LangDetectException, IOException, InvalidPDF {
         setFolder(pdfLocation);
-        titleHandler.setTitles(pdfLocation);
+        titleHandler.initializeKnownTitles(pdfLocation);
         corpus = fillCorpus(folder);
         if (debug_calc) {
             corpus.calculateIdf();

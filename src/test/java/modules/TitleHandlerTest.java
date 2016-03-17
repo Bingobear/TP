@@ -14,7 +14,7 @@ public class TitleHandlerTest {
     public void testgetTitle() throws IOException {
         PDFHandler pdfHandler = new PDFHandler();
         TitleHandler titleHandler = new TitleHandler();
-        titleHandler.setTitles("text");
+        titleHandler.initializeKnownTitles("text");
         String title = titleHandler.getTitle("schaar_06038875");
         assertEquals("Smart Clothing. Perceived Benefits vs. Perceived Fears", title);
     }

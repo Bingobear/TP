@@ -163,7 +163,6 @@ public class Corpus {
                     try {
                         writelog(wordCat, wordGlobal, pdf.getTitle());
                     } catch (IOException e) {
-                        // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
                     cat.setAssociatedGCAT(this.getGlobalCategoryCatalog()

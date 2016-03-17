@@ -14,10 +14,7 @@ import java.util.ArrayList;
  * Created by simonbruns on 16/03/16.
  */
 public class TitleHandler {
-    private static String title = "";
     private ArrayList<String> titles;
-
-
 
     /**
      * Maps the file names with the reference titles (csv). Work around for pdfs
@@ -39,7 +36,10 @@ public class TitleHandler {
 
     }
 
-    public void setTitles(String location) throws IOException {
+    /*
+     * TODO Don't implement logic in setters!
+     */
+    public void initializeKnownTitles(String location) throws IOException {
         ClassLoader classLoader = getClass().getClassLoader();
         String importtitle = classLoader.getResource(location + "/titles/pdftitleo.csv").getFile();
         titles = readCSVTitle(importtitle);

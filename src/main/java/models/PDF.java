@@ -47,7 +47,6 @@ public class PDF {
 	}
 
 	public PDF() {
-		// TODO Auto-generated constructor stub
 	}
 
 	public PDF(ArrayList<WordOcc> words, String language, int wordcount) {
