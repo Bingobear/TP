@@ -14,16 +14,16 @@ import java.util.ArrayList;
  */
 public class CorpusHandler {
     private static final double TFICF_THRESHOLD = 0.00001;
-    private static final boolean debug_calc = false;
+    private final boolean debug_calc = false;
     private File folder;
 
     private PDFHandler pdfHandler;
-    private TitleHandler titleHandler;
+    private TitleMatcher titleHandler;
     private Corpus corpus;
 
     public CorpusHandler() {
         corpus = new Corpus();
-        titleHandler = new TitleHandler();
+        titleHandler = new TitleMatcher();
         pdfHandler = new PDFHandler();
     }
 
@@ -36,7 +36,7 @@ public class CorpusHandler {
      * @throws IOException
      */
     public Corpus createCorpus(String pdfLocation) throws LangDetectException, IOException, InvalidPDF {
-        setFolder(pdfLocation);
+        initSourceFolder(pdfLocation);
         titleHandler.initializeKnownTitles(pdfLocation);
         corpus = fillCorpus(folder);
         if (debug_calc) {
@@ -51,7 +51,7 @@ public class CorpusHandler {
 
     }
 
-    private void setFolder(String pdfLocation) {
+    private void initSourceFolder(String pdfLocation) {
         ClassLoader classLoader = getClass().getClassLoader();
         folder = new File(classLoader.getResource(pdfLocation).getFile());
     }
@@ -74,8 +74,6 @@ public class CorpusHandler {
                 } catch (InvalidPDF invalidPDF) {
                     System.out.println(fileEntry.getName() + " was not valid PDF!");
                 }
-
-
             } else if (fileEntry.isDirectory()) {
                 if (isNotTitlesFolder(fileEntry)) {
                     fillCorpus(fileEntry);
@@ -85,17 +83,17 @@ public class CorpusHandler {
         return corpus;
     }
 
-    private boolean isNotTitlesFolder(File fileEntry) {
-        return !fileEntry.getName().contains("titles");
-    }
-
-
     private void addPDF2Corpus(PDF pdf) {
         corpus.incDocN(pdf.getLanguage());
         corpus.associateWordswithCategory(pdf);
         ArrayList<PDF> pdfTemList = corpus.getPdfList();
         pdfTemList.add(pdf);
         corpus.setPdfList(pdfTemList);
+    }
+
+
+    private boolean isNotTitlesFolder(File fileEntry) {
+        return !fileEntry.getName().contains("titles");
     }
 
     public void setCorpus(Corpus newCorpus) {

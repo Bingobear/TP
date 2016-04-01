@@ -49,4 +49,14 @@ public class PDFExtractorTest {
         extract.parsePDFtoKey(fileEntry);
         assertEquals(6,extract.getCatnumb());
     }
+
+    @Test
+    public void testgetPDFLanguage() throws LangDetectException, IOException, InvalidPDF {
+        ClassLoader classLoader = getClass().getClassLoader();
+        File fileEntry =new File(classLoader.getResource("text/schaar_06038875.pdf").getFile());
+        ArrayList<PDF> pdfList = new ArrayList<PDF>();
+        PDFExtractor extract = new PDFExtractor();
+        extract.parsePDFtoKey(fileEntry);
+        assertEquals("en",extract.getLang());
+    }
 }

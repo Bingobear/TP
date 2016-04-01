@@ -44,14 +44,10 @@ public class KeywordUtil {
         int start = -1;
         if (textPDF.contains("keywords")) {
             start = textPDF.indexOf("keywords") + 1;
-
-//			System.out.println("Keyword found " + start);
-
         } else if (textPDF.contains("keyword")) {
             start = textPDF.indexOf("keyword") + 1;
         } else {
             start = getKeywPosition(textPDF);
-//			System.out.println("Keyword found within word" + start);
         }
         if (textPDF.contains("index")) {
             // does not work i think
@@ -61,7 +57,6 @@ public class KeywordUtil {
                 if ((Istart < start) || (start == 0)) {
                     start = Istart;
                 }
-//				System.out.println("Index found " + start);
             } else if ((Istart < start) || (start == 0)) {
                 start = findTermsposition(Istart + 1, new ArrayList<String>(
                         textPDF.subList(Istart + 1, textPDF.size())));
@@ -127,8 +122,6 @@ public class KeywordUtil {
     public static int findKeyWEnd(ArrayList<String> textPDF) {
         int end = textPDF.size() - 1;
         int endCandidate = 0;
-        // ami2011 - towards 1s20 - ACM, WHEN- beul_et_al._ahfe.pdf, editorial -
-        // iwc.iwt053.full.pdf
         String[] stops = { "introduction", "motivation", "abstract", ".",
                 "acm", "towards", "when", "editorial", "*" };
         for (int ii = 0; ii < stops.length; ii++) {
@@ -142,7 +135,6 @@ public class KeywordUtil {
                 }
                 if ((end > endCandidate) && (endCandidate > 4)) {
                     end = endCandidate;
-//					System.out.println(stops[ii] + ": - " + end);
                 }
             }
         }
@@ -155,27 +147,24 @@ public class KeywordUtil {
      * Extracts the akronom from a given string e.g. technology acceptance (ta)
      * -> ta
      *
-     * @param arrayList
+     * @param akronom
      * @return
      */
-    public static String getAkronom(ArrayList<String> arrayList) {
-        int end = getEndBracketPos(arrayList);
-        String akro = "";
-        int start = 0;
-        if (arrayList.get(0).equals("(")) {
-            start++;
+    public static String getAkronom(String textPassage) {
+        int startakronom = textPassage.indexOf("(");
+        int endakronom = textPassage.indexOf(")");
+        String akronom="";
+        if(hasAkronomBrackets(startakronom, endakronom)) {
+            akronom = textPassage.substring(startakronom, endakronom);
+            akronom = akronom.replace("(", "");
+            akronom = akronom.replace(")", "");
+            akronom.trim();
         }
-        for (int ii = start; ii < end; ii++) {
-            akro = akro + arrayList.get(ii) + " ";
-        }
-        if (!(arrayList.get(end).equals(")"))) {
-            akro = akro + arrayList.get(end);
-        }
+        return akronom;
+    }
 
-        akro = akro.replace("(", "");
-        akro = akro.replace(")", "");
-        akro.trim();
-        return akro;
+    private static boolean hasAkronomBrackets(int startakronom, int endakronom) {
+        return (startakronom>=0)&&(endakronom>=0);
     }
 
     private static int getEndBracketPos(ArrayList<String> arrayList) {

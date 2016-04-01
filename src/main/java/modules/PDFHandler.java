@@ -37,7 +37,7 @@ public class PDFHandler {
      */
     private PDF createPDF(File fileEntry) throws LangDetectException, IOException, InvalidPDF {
 
-        ArrayList<WordOcc> wordOccurences = extractWordsAndOccs(fileEntry);
+        ArrayList<WordOcc> wordOccurences = extractPDFContent(fileEntry);
         PDF pdf = fillPDF(fileEntry,wordOccurences);
 
         if (hasKeywords(pdf)) {
@@ -48,7 +48,7 @@ public class PDFHandler {
 
 
 
-    private ArrayList<WordOcc> extractWordsAndOccs(File fileEntry) throws LangDetectException, IOException, InvalidPDF {
+    private ArrayList<WordOcc> extractPDFContent(File fileEntry) throws LangDetectException, IOException, InvalidPDF {
         ArrayList<Words> words;
         ArrayList<WordOcc> wordOccs = new ArrayList<WordOcc>();
         words = extractor.parsePDFtoKey(fileEntry);
@@ -58,15 +58,14 @@ public class PDFHandler {
         return wordOccs;
     }
 
-    private boolean hasWords(ArrayList<Words> words) {
-        return words.size() > 0;
-    }
-
     private PDF fillPDF(File fileEntry, ArrayList<WordOcc> occ) {
         PDF pdf = new PDF(occ, extractor);
         pdf.setFilename(fileEntry.getName());
-
         return pdf;
+    }
+
+    private boolean hasWords(ArrayList<Words> words) {
+        return words.size() > 0;
     }
 
     private boolean hasKeywords(PDF pdf) {

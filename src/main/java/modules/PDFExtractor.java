@@ -8,7 +8,6 @@ import models.*;
 import org.apache.pdfbox.cos.COSDocument;
 import org.apache.pdfbox.pdfparser.PDFParser;
 import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.util.PDFTextStripper;
 
 import Util.*;
 
@@ -21,10 +20,12 @@ import com.cybozu.labs.langdetect.LangDetectException;
  */
 
 public class PDFExtractor {
-;
+
     public static final int FILTER_WORTTYPE_MODE = 0;
     public static final int steps = 5;
-    public static final int stepPages = steps-1;
+    public static final int stepPages = steps - 1;
+    public static final int endTitlePage = 1;
+    public static final int startTitlePage = 0;
 
     private COSDocument cosDoc;
     private PDDocument pdDoc;
@@ -48,50 +49,38 @@ public class PDFExtractor {
      */
     public ArrayList<Words> parsePDFtoKey(File fileEntry) throws LangDetectException, IOException, InvalidPDF {
         ArrayList<Words> result = new ArrayList<Words>();
-//        Preparation Objects to read PDF
-
         pdDoc = parsePDFDocument(fileEntry);
         setPagenumber(pdDoc.getNumberOfPages());
-        LangDetect lang = new LangDetect();
 
         for (int startPage = 0; startPage < pdDoc.getNumberOfPages(); startPage += steps) {
             int endPage = startPage + stepPages;
             String parsedText = NLPUtil.parsePdftoString(pdDoc, startPage,
                     endPage);
             if (isValidPDF(startPage, parsedText)) {
-                setLang(lang.detect(parsedText));
-
-                if (isFirstPage(startPage)) {
-                    int firstTwoPages = startPage + 1;
-                    this.setTitlePage(NLPUtil.parsePdftoString(pdDoc,
-                            startPage, firstTwoPages));
-                    parsedText = parsedText.toLowerCase();
-                    String[] tokens = NLPUtil.getTokenPM(parsedText, this.language);
-                    getKeywordsPDF(tokens);
-                    optimizeTitlePageSize();
-                }
-
                 parsedText = parsedText.toLowerCase();
-
-                // sentence detector -> tokenizer
-                String[] tokens = NLPUtil.getToken(parsedText, this.language);
-                String[] filter = NLPUtil.posttags(tokens, this.language);
-                ArrayList<Words> words = NLPUtil.generateWords(filter, tokens, FILTER_WORTTYPE_MODE, this.getLang(), this.getKeywords());
+                if (isFirstPage(startPage)) {
+                    parseFirstPages(parsedText);
+                }
+                ArrayList<Words> words = extractWords(parsedText);
                 result.addAll(words);
-                wordcount = wordcount + tokens.length;
             } else {
                 throw new InvalidPDF();
-
-
             }
         }
         cosDoc.close();
         return result;
     }
 
+    private ArrayList<Words> extractWords(String parsedText) {
+        String[] tokens = NLPUtil.getToken(parsedText, language);
+        String[] filter = NLPUtil.posttags(tokens, language);
+        wordcount = wordcount + tokens.length;
+        return NLPUtil.generateWords(filter, tokens, FILTER_WORTTYPE_MODE, this.getLang(), this.getKeywords());
+    }
+
     private PDDocument parsePDFDocument(File fileEntry) throws IOException {
         PDFParser parser = initializePDFParser(fileEntry);
-        cosDoc= parser.getDocument();
+        cosDoc = parser.getDocument();
         return new PDDocument(cosDoc);
     }
 
@@ -101,12 +90,21 @@ public class PDFExtractor {
         return parser;
     }
 
+    private void parseFirstPages(String parsedText) throws IOException, InvalidPDF, LangDetectException {
+        LangDetect lang = new LangDetect();
+        setLang(lang.detect(parsedText));
+        this.setTitlePage(NLPUtil.parsePdftoString(pdDoc,
+                startTitlePage, endTitlePage));
+        String[] tokens = NLPUtil.getTokenPM(parsedText, this.language);
+        getKeywordsPDF(tokens);
+        optimizeTitlePageSize();
+    }
 
     private void getKeywordsPDF(String[] tokens) throws InvalidPDF {
-        KeywordHandler keywordHandler = new KeywordHandler();
-        setKeywords(keywordHandler.getKeywordsFromPDF(tokens));
+        KeywordExtractor keywordExtractor = new KeywordExtractor();
+        setKeywords(keywordExtractor.getKeywordsFromPDF(tokens));
         setCatnumb(keywords.size());
-        endPosition = keywordHandler.getEndPosition();
+        endPosition = keywordExtractor.getEndPosition();
     }
 
     private void optimizeTitlePageSize() {

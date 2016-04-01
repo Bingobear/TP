@@ -13,7 +13,7 @@ import java.util.ArrayList;
 /**
  * Created by simonbruns on 16/03/16.
  */
-public class TitleHandler {
+public class TitleMatcher {
     private ArrayList<String> titles;
 
     /**
