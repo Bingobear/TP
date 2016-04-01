@@ -36,22 +36,20 @@ public class CorpusHandler {
      * @throws IOException
      */
     public Corpus createCorpus(String pdfLocation) throws LangDetectException, IOException, InvalidPDF {
-        initSourceFolder(pdfLocation);
+        initPDFSourceFolder(pdfLocation);
         titleHandler.initializeKnownTitles(pdfLocation);
         corpus = fillCorpus(folder);
         if (debug_calc) {
             corpus.calculateIdf();
             corpus.setPdfList(corpus.calculateTD_IDF(corpus.getPdfList()));
-
             corpus.initializeTFICFCalc();
             corpus.filterTFICF(TFICF_THRESHOLD);
             corpus.calculateAllPDFCatRel();
         }
         return corpus;
-
     }
 
-    private void initSourceFolder(String pdfLocation) {
+    private void initPDFSourceFolder(String pdfLocation) {
         ClassLoader classLoader = getClass().getClassLoader();
         folder = new File(classLoader.getResource(pdfLocation).getFile());
     }

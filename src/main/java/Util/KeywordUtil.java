@@ -147,7 +147,7 @@ public class KeywordUtil {
      * Extracts the akronom from a given string e.g. technology acceptance (ta)
      * -> ta
      *
-     * @param akronom
+     * @param textPassage
      * @return
      */
     public static String getAkronom(String textPassage) {
