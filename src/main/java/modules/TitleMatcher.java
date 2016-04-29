@@ -36,9 +36,6 @@ public class TitleMatcher {
 
     }
 
-    /*
-     * TODO Don't implement logic in setters!
-     */
     public void initializeKnownTitles(String location) throws IOException {
         ClassLoader classLoader = getClass().getClassLoader();
         String importtitle = classLoader.getResource(location + "/titles/pdftitleo.csv").getFile();

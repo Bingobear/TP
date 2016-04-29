@@ -1,17 +1,13 @@
 package modules;
 
-import java.io.*;
-import java.util.ArrayList;
-
-import models.*;
-
-import org.apache.pdfbox.cos.COSDocument;
-import org.apache.pdfbox.pdfparser.PDFParser;
-import org.apache.pdfbox.pdmodel.PDDocument;
-
-import Util.*;
-
+import Util.NLPUtil;
 import com.cybozu.labs.langdetect.LangDetectException;
+import models.Category;
+import models.Words;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * Main Text Mining Class
@@ -21,14 +17,11 @@ import com.cybozu.labs.langdetect.LangDetectException;
 
 public class PDFExtractor {
 
-    public static final int FILTER_WORTTYPE_MODE = 0;
+    public static final int FILTER_WORDTYPE_MODE = 0;
     public static final int steps = 5;
     public static final int stepPages = steps - 1;
     public static final int endTitlePage = 1;
     public static final int startTitlePage = 0;
-
-    private COSDocument cosDoc;
-    private PDDocument pdDoc;
 
     private String titlePage;
     private int catnumb;
@@ -37,67 +30,26 @@ public class PDFExtractor {
     private int wordcount = 0;
     private String language;
     private ArrayList<Category> keywords = new ArrayList<Category>();
+    private PDFConverter pdfConverter;
 
-    /**
-     * Parses PDFfile -> performs textmining: keyword-extraction,
-     * word-extraction
-     *
-     * @param fileEntry
-     * @return ArrayList of words
-     * @throws LangDetectException
-     * @throws IOException
-     */
-    public ArrayList<Words> parsePDFtoKey(File fileEntry) throws LangDetectException, IOException, InvalidPDF {
-        ArrayList<Words> result = new ArrayList<Words>();
-        pdDoc = parsePDFDocument(fileEntry);
-        setPagenumber(pdDoc.getNumberOfPages());
-
-        for (int startPage = 0; startPage < pdDoc.getNumberOfPages(); startPage += steps) {
-            int endPage = startPage + stepPages;
-            String parsedText = NLPUtil.parsePdftoString(pdDoc, startPage,
-                    endPage);
-            if (isValidPDF(startPage, parsedText)) {
-                parsedText = parsedText.toLowerCase();
-                if (isFirstPage(startPage)) {
-                    parseFirstPages(parsedText);
-                }
-                ArrayList<Words> words = extractWords(parsedText);
-                result.addAll(words);
-            } else {
-                throw new InvalidPDF();
-            }
-        }
-        cosDoc.close();
-        return result;
+    public ArrayList<Words> parsePDF(File fileEntry) throws IOException, InvalidPDF, LangDetectException {
+        pdfConverter = new PDFConverter(fileEntry);
+        parseFirstPages();
+        return parsePDF2Words();
     }
 
-    private ArrayList<Words> extractWords(String parsedText) {
-        String[] tokens = NLPUtil.getToken(parsedText, language);
-        String[] filter = NLPUtil.posttags(tokens, language);
-        wordcount = wordcount + tokens.length;
-        return NLPUtil.generateWords(filter, tokens, FILTER_WORTTYPE_MODE, this.getLang(), this.getKeywords());
-    }
-
-    private PDDocument parsePDFDocument(File fileEntry) throws IOException {
-        PDFParser parser = initializePDFParser(fileEntry);
-        cosDoc = parser.getDocument();
-        return new PDDocument(cosDoc);
-    }
-
-    private PDFParser initializePDFParser(File fileEntry) throws IOException {
-        PDFParser parser = new PDFParser(new FileInputStream(fileEntry));
-        parser.parse();
-        return parser;
-    }
-
-    private void parseFirstPages(String parsedText) throws IOException, InvalidPDF, LangDetectException {
-        LangDetect lang = new LangDetect();
-        setLang(lang.detect(parsedText));
-        this.setTitlePage(NLPUtil.parsePdftoString(pdDoc,
-                startTitlePage, endTitlePage));
+    private void parseFirstPages() throws IOException, InvalidPDF, LangDetectException {
+        String parsedText = pdfConverter.parseNPages(startTitlePage,endTitlePage);
+        detectLanguage(parsedText);
+        setTitlePage(parsedText);
         String[] tokens = NLPUtil.getTokenPM(parsedText, this.language);
         getKeywordsPDF(tokens);
         optimizeTitlePageSize();
+    }
+
+    private void detectLanguage(String parsedText) throws LangDetectException {
+        LangDetect lang = new LangDetect();
+        setLang(lang.detect(parsedText));
     }
 
     private void getKeywordsPDF(String[] tokens) throws InvalidPDF {
@@ -112,6 +64,38 @@ public class PDFExtractor {
             this.titlePage = this.titlePage.substring(0,
                     endPosition - 1);
         }
+    }
+
+    /**
+     * Parses PDFfile -> performs textmining: keyword-extraction,
+     * word-extraction
+     *
+     * @return ArrayList of words
+     * @throws LangDetectException
+     * @throws IOException
+     */
+    public ArrayList<Words> parsePDF2Words() throws LangDetectException, IOException, InvalidPDF {
+        ArrayList<Words> result = new ArrayList<Words>();
+        for (int startPage = 0; startPage < pdfConverter.getPageNumber(); startPage += steps) {
+            int endPage = startPage + stepPages;
+            String parsedText = pdfConverter.parseNPages(startPage, endPage);
+            if (isValidPDF(startPage, parsedText)) {
+                parsedText = parsedText.toLowerCase();
+                ArrayList<Words> words = extractWords(parsedText);
+                result.addAll(words);
+            } else {
+                throw new InvalidPDF();
+            }
+        }
+        pdfConverter.close();
+        return result;
+    }
+
+    private ArrayList<Words> extractWords(String parsedText) {
+        String[] tokens = NLPUtil.getToken(parsedText, language);
+        String[] filter = NLPUtil.posttags(tokens, language);
+        wordcount = wordcount + tokens.length;
+        return NLPUtil.generateWords(filter, tokens, FILTER_WORDTYPE_MODE, this.getLang(), this.getKeywords());
     }
 
     private boolean isFirstPage(int startPage) {
@@ -160,9 +144,5 @@ public class PDFExtractor {
 
     public int getPagenumber() {
         return pagenumber;
-    }
-
-    private void setPagenumber(int pagenumber) {
-        this.pagenumber = pagenumber;
     }
 }

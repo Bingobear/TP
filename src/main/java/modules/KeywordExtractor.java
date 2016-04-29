@@ -21,6 +21,7 @@ public class KeywordExtractor {
     private ArrayList<Category> keywords = new ArrayList<Category>();
     private String currentAkronom = "";
     private String currentKeyword = "";
+    private int endPosition;
     private int catnumb;
 
     /**
@@ -113,7 +114,7 @@ public class KeywordExtractor {
     }
 
     private ArrayList<String> extractEndKeywordPassage(ArrayList<String> textPDF) {
-        int endPosition = KeywordUtil.findKeyWEnd(textPDF);
+        endPosition = KeywordUtil.findKeyWEnd(textPDF);
         return new ArrayList<String>(textPDF.subList(0, endPosition));
     }
 
@@ -159,5 +160,8 @@ public class KeywordExtractor {
         catnumb = numberofCategories;
     }
 
+    public int getEndPosition() {
+        return endPosition;
+    }
 }
 

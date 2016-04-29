@@ -51,7 +51,7 @@ public class PDFHandler {
     private ArrayList<WordOcc> extractPDFContent(File fileEntry) throws LangDetectException, IOException, InvalidPDF {
         ArrayList<Words> words;
         ArrayList<WordOcc> wordOccs = new ArrayList<WordOcc>();
-        words = extractor.parsePDFtoKey(fileEntry);
+        words = extractor.parsePDF(fileEntry);
         if (hasWords(words)) {
             wordOccs = NLPUtil.keyOcc(words);
         }
