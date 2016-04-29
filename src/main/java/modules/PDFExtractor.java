@@ -20,12 +20,11 @@ public class PDFExtractor {
     public static final int FILTER_WORDTYPE_MODE = 0;
     public static final int steps = 5;
     public static final int stepPages = steps - 1;
-    public static final int endTitlePage = 1;
-    public static final int startTitlePage = 0;
+    public static final int endFirstPage = 1;
+    public static final int startFirstPage = 0;
 
     private String titlePage;
     private int catnumb;
-    private int pagenumber;
     private int endPosition = 0;
     private int wordcount = 0;
     private String language;
@@ -39,7 +38,7 @@ public class PDFExtractor {
     }
 
     private void parseFirstPages() throws IOException, InvalidPDF, LangDetectException {
-        String parsedText = pdfConverter.parseNPages(startTitlePage,endTitlePage);
+        String parsedText = pdfConverter.parseNPages(startFirstPage, endFirstPage);
         detectLanguage(parsedText);
         setTitlePage(parsedText);
         String[] tokens = NLPUtil.getTokenPM(parsedText, this.language);
@@ -140,9 +139,5 @@ public class PDFExtractor {
 
     private void setCatnumb(int catnumb) {
         this.catnumb = catnumb;
-    }
-
-    public int getPagenumber() {
-        return pagenumber;
     }
 }
