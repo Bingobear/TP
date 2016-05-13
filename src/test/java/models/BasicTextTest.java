@@ -18,6 +18,6 @@ public class BasicTextTest {
     @Test
     public void testGetText() throws Exception {
         BasicText basicText = new BasicText("TEST");
-        assertEquals("TEST",basicText.getText());
+        assertEquals("test",basicText.getText());
     }
 }

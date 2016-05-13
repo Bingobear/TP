@@ -35,6 +35,6 @@ public class BasicText {
 
     private void detectLanguage() throws LangDetectException {
         LangDetect lang = new LangDetect();
-        setLanguage(getText());
+        setLanguage(lang.detect(getText()));
     }
 }

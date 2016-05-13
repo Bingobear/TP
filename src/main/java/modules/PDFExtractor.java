@@ -29,6 +29,7 @@ public class PDFExtractor {
     private int endPosition = 0;
     private int pagenumber;
     private int wordcount = 0;
+    private BasicText pdfText;
     private ArrayList<Category> keywords = new ArrayList<Category>();
     private PDFConverter pdfConverter;
 
@@ -74,16 +75,19 @@ public class PDFExtractor {
     public ArrayList<Words> parsePDF2Words() throws LangDetectException, IOException, InvalidPDF {
         ArrayList<Words> result = new ArrayList<Words>();
         setPagenumber(pdfConverter.getPageNumber());
+        ArrayList<BasicText> basicTexts= new ArrayList<BasicText>();
         for (int startPage = 0; startPage < pdfConverter.getPageNumber(); startPage += steps) {
             int endPage = startPage + stepPages;
-            BasicText basicText = new BasicText(pdfConverter.parseNPages(startPage, endPage));
-            if (isValidPDF(startPage, basicText.getText())) {
-                ArrayList<Words> words = extractWords(basicText);
+            BasicText basicTextofPages = new BasicText(pdfConverter.parseNPages(startPage, endPage));
+            basicTexts.add(basicTextofPages);
+            if (isValidPDF(startPage, basicTextofPages.getText())) {
+                ArrayList<Words> words = extractWords(basicTextofPages);
                 result.addAll(words);
             } else {
                 throw new InvalidPDF();
             }
         }
+        setPdfText(mergeBasicTexts(basicTexts));
         pdfConverter.close();
         return result;
     }
@@ -93,6 +97,15 @@ public class PDFExtractor {
         String[] filter = NLPUtil.posttags(tokens, basicText.getLanguage());
         wordcount = wordcount + tokens.length;
         return NLPUtil.generateWords(filter, tokens, FILTER_WORDTYPE_MODE, basicText.getLanguage(), this.getKeywords());
+    }
+
+    private BasicText mergeBasicTexts(ArrayList<BasicText> basicTexts) throws LangDetectException {
+        String addedText="";
+        for (BasicText basicText:basicTexts) {
+            addedText = addedText.concat(basicText.getText());
+        }
+        BasicText completeText = new BasicText(addedText);
+        return completeText;
     }
 
     private boolean isFirstPage(int startPage) {
@@ -137,5 +150,13 @@ public class PDFExtractor {
 
     public void setPagenumber(int pagenumber) {
         this.pagenumber = pagenumber;
+    }
+
+    public BasicText getPdfText() {
+        return pdfText;
+    }
+
+    private void setPdfText(BasicText pdfText) {
+        this.pdfText = pdfText;
     }
 }

@@ -39,7 +39,7 @@ public class PDF {
     public PDF(ArrayList<WordOcc> words, PDFExtractor extractor) {
         this.wordOcc = words;
         this.wordcount = extractor.getWordcount();
-        this.language = extractor.getLang();
+        this.language = extractor.getPdfText().getLanguage();
         this.firstPage = extractor.getTitlePage();
         this.setGenericKeywords(extractor.getKeywords());
         this.setCatnumb(extractor.getCatnumb());
