@@ -2,50 +2,49 @@ package models;
 
 /**
  * Keyword model class
- * 
- * @author Simon Bruns
  *
+ * @author Simon Bruns
  */
 
 public class Keyword {
-	private int score;
-	private String word;
-	private Category cat;
-	private PDF pdf;
-	
-	public PDF getPdf() {
-		return pdf;
-	}
+    private int score;
+    private String word;
+    private Category cat;
+    private PDF pdf;
 
-	public void setPdf(PDF pdf) {
-		this.pdf = pdf;
-	}
+    public PDF getPdf() {
+        return pdf;
+    }
 
-	public Category getCat() {
-		return cat;
-	}
+    public void setPdf(PDF pdf) {
+        this.pdf = pdf;
+    }
 
-	public void setCat(Category cat) {
-		this.cat = cat;
-	}
+    public Category getCat() {
+        return cat;
+    }
 
-	public Keyword() {
+    public void setCat(Category cat) {
+        this.cat = cat;
+    }
 
-	}
-	
-	public int getScore() {
-		return score;
-	}
+    public Keyword() {
 
-	public void setScore(int score) {
-		this.score = score;
-	}
+    }
 
-	public String getWord() {
-		return word;
-	}
+    public int getScore() {
+        return score;
+    }
 
-	public void setWord(String word) {
-		this.word = word;
-	}	
+    public void setScore(int score) {
+        this.score = score;
+    }
+
+    public String getWord() {
+        return word;
+    }
+
+    public void setWord(String word) {
+        this.word = word;
+    }
 }

@@ -4,6 +4,7 @@ import Util.NLPUtil;
 import com.cybozu.labs.langdetect.LangDetectException;
 import models.BasicText;
 import models.Category;
+import models.FormattedText;
 import models.Word;
 
 import java.io.File;
@@ -29,6 +30,7 @@ public class PDFExtractor {
     private int endPosition = 0;
     private int pagenumber;
     private int wordcount = 0;
+    private FormattedText formattedText;
     private BasicText pdfText;
     private ArrayList<Category> keywords = new ArrayList<Category>();
     private PDFConverter pdfConverter;
@@ -87,6 +89,7 @@ public class PDFExtractor {
                 throw new InvalidPDF();
             }
         }
+        setFormattedText(new FormattedText(FILTER_WORDTYPE_MODE,result));
         setPdfText(mergeBasicTexts(basicTexts));
         pdfConverter.close();
         return result;
@@ -158,5 +161,13 @@ public class PDFExtractor {
 
     private void setPdfText(BasicText pdfText) {
         this.pdfText = pdfText;
+    }
+
+    public FormattedText getFormattedText() {
+        return formattedText;
+    }
+
+    public void setFormattedText(FormattedText formattedText) {
+        this.formattedText = formattedText;
     }
 }

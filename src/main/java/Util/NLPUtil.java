@@ -71,7 +71,7 @@ public class NLPUtil {
      *
      * @param filter
      * @param tokens
-     * @param mode  : 0-Noun, 1-Noun&Verb, 2-Noun&Adjective
+     * @param mode   : 0-Noun, 1-Noun&Verb, 2-Noun&Adjective
      * @return
      */
     public static ArrayList<Word> generateWords(String[] filter, String[] tokens,
@@ -337,8 +337,8 @@ public class NLPUtil {
      * Converts x pages (end-start) pdf to String
      *
      * @param pdDoc
-     * @param start       (starting page)
-     * @param end         (ending page)
+     * @param start (starting page)
+     * @param end   (ending page)
      * @return
      * @throws IOException
      */
