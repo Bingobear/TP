@@ -5,8 +5,8 @@ import java.io.InputStream;
 import java.util.ArrayList;
 
 import models.Category;
-import models.WordOcc;
-import models.Words;
+import models.Word;
+import models.WordProperty;
 import modules.Stemmer;
 import opennlp.tools.postag.POSModel;
 import opennlp.tools.postag.POSTaggerME;
@@ -22,16 +22,16 @@ import org.apache.pdfbox.util.PDFTextStripper;
 
 public class NLPUtil {
     /**
-     * Generates WordOcc array -> erasing duplicates and counting words
+     * Generates WordProperty array -> erasing duplicates and counting words
      *
      * @param words
      * @return
      */
     @SuppressWarnings("unchecked")
-    public static ArrayList<WordOcc> keyOcc(ArrayList<Words> words) {
-        ArrayList<Words> keywords = new ArrayList<Words>();
-        keywords = (ArrayList<Words>) words.clone();
-        ArrayList<WordOcc> result = new ArrayList<WordOcc>();
+    public static ArrayList<WordProperty> keyOcc(ArrayList<Word> words) {
+        ArrayList<Word> keywords = new ArrayList<Word>();
+        keywords = (ArrayList<Word>) words.clone();
+        ArrayList<WordProperty> result = new ArrayList<WordProperty>();
         int arraySize = keywords.size();
 
         @SuppressWarnings("unused")
@@ -40,20 +40,20 @@ public class NLPUtil {
         int size = 0;
         while (arraySize > 0) {
             int count = 0;
-            Words current = keywords.get(0);
+            Word current = keywords.get(0);
 
             for (int ii = 0; ii < keywords.size(); ii++) {
-                Words compare = keywords.get(ii);
+                Word compare = keywords.get(ii);
 
-                if (compare.getWord().equals(current.getWord())
+                if (compare.getText().equals(current.getText())
                         || ((compare.getStem().equals(current.getStem())) && ((compare
                         .getType().contains(current.getType()) || (current
                         .getType().contains(compare.getType())))))) {
                     keywords.remove(ii);
                     count++;
                     arraySize--;
-                } else if (AlgorithmUtil.LevenshteinDistance(current.getWord(),
-                        compare.getWord()) < 0.2) {
+                } else if (AlgorithmUtil.LevenshteinDistance(current.getText(),
+                        compare.getText()) < 0.2) {
                     keywords.remove(ii);
                     count++;
                     arraySize--;
@@ -61,7 +61,7 @@ public class NLPUtil {
                 counter = ii;
                 size = keywords.size();
             }
-            result.add(new WordOcc(current, count));
+            result.add(new WordProperty(current, count));
         }
         return result;
     }
@@ -74,11 +74,11 @@ public class NLPUtil {
      * @param mode  : 0-Noun, 1-Noun&Verb, 2-Noun&Adjective
      * @return
      */
-    public static ArrayList<Words> generateWords(String[] filter, String[] tokens,
-                                                 int mode, String language, ArrayList<Category> keywords) {
+    public static ArrayList<Word> generateWords(String[] filter, String[] tokens,
+                                                int mode, String language, ArrayList<Category> keywords) {
         // ArrayList<Integer> result = new ArrayList<Integer>();
 
-        ArrayList<Words> result = new ArrayList<Words>();
+        ArrayList<Word> result = new ArrayList<Word>();
         // for eng and german
         Stemmer stem = new Stemmer();
         String[] stemmedW = stem.stem(tokens, language);
@@ -90,7 +90,7 @@ public class NLPUtil {
                         // System.out.println(tokens[ii]);
                         String text = tokens[ii].replaceAll("\\W", "");
                         if ((!text.isEmpty()) && (text.length() > 1)) {
-                            Words word = new Words(text, stemmedW[ii],
+                            Word word = new Word(text, stemmedW[ii],
                                     filter[ii], keywords);
                             result.add(word);
                         }
@@ -98,7 +98,7 @@ public class NLPUtil {
                         String text = tokens[ii].replaceAll(
                                 "[^\\p{L}\\p{Nd}]+", "");
                         if ((!text.isEmpty()) && (text.length() > 1)) {
-                            Words word = new Words(text, stemmedW[ii],
+                            Word word = new Word(text, stemmedW[ii],
                                     filter[ii], keywords);
                             result.add(word);
                         }
@@ -112,7 +112,7 @@ public class NLPUtil {
                         // System.out.println(tokens[ii]);
                         String text = tokens[ii].replaceAll("\\W", "");
                         if ((!text.isEmpty()) && (text.length() > 1)) {
-                            Words word = new Words(text, stemmedW[ii],
+                            Word word = new Word(text, stemmedW[ii],
                                     filter[ii], keywords);
                             result.add(word);
                         }
@@ -120,7 +120,7 @@ public class NLPUtil {
                         String text = tokens[ii].replaceAll(
                                 "[^\\p{L}\\p{Nd}]+", "");
                         if ((!text.isEmpty()) && (text.length() > 1)) {
-                            Words word = new Words(text, stemmedW[ii],
+                            Word word = new Word(text, stemmedW[ii],
                                     filter[ii], keywords);
                             result.add(word);
                         }
@@ -133,7 +133,7 @@ public class NLPUtil {
                     if (!language.equals("de")) {
                         String text = tokens[ii].replaceAll("\\W", "");
                         if ((!text.isEmpty()) && (text.length() > 1)) {
-                            Words word = new Words(text, stemmedW[ii],
+                            Word word = new Word(text, stemmedW[ii],
                                     filter[ii], keywords);
                             result.add(word);
                         }
@@ -141,7 +141,7 @@ public class NLPUtil {
                         String text = tokens[ii].replaceAll(
                                 "[^\\p{L}\\p{Nd}]+", "");
                         if ((!text.isEmpty()) && (text.length() > 1)) {
-                            Words word = new Words(text, stemmedW[ii],
+                            Word word = new Word(text, stemmedW[ii],
                                     filter[ii], keywords);
                             result.add(word);
                         }

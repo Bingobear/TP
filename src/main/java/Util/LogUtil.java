@@ -10,7 +10,7 @@ import java.io.Writer;
 import java.util.ArrayList;
 
 import models.Category;
-import models.WordOcc;
+import models.WordProperty;
 
 public class LogUtil {
 	/** Writes a keyword log to protocol what keywords were extracted for which pdf
@@ -54,7 +54,7 @@ public class LogUtil {
 	 * @param title
 	 */
 	@SuppressWarnings("unused")
-	private static void createTextExport(ArrayList<WordOcc> keyOcc,
+	private static void createTextExport(ArrayList<WordProperty> keyOcc,
 			String path, String title) {
 		Writer writer = null;
 
@@ -62,9 +62,9 @@ public class LogUtil {
 			writer = new BufferedWriter(new OutputStreamWriter(
 					new FileOutputStream(path + title + ".txt"), "utf-8"));
 			for (int ii = 0; ii < keyOcc.size(); ii++) {
-				WordOcc current = keyOcc.get(ii);
+				WordProperty current = keyOcc.get(ii);
 
-				writer.write(current.getWord().getWord() + ";"
+				writer.write(current.getWord().getText() + ";"
 						+ current.getOcc() + ";");
 
 			}

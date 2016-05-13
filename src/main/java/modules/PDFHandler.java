@@ -3,8 +3,8 @@ package modules;
 import Util.NLPUtil;
 import com.cybozu.labs.langdetect.LangDetectException;
 import models.PDF;
-import models.WordOcc;
-import models.Words;
+import models.Word;
+import models.WordProperty;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,7 +37,7 @@ public class PDFHandler {
      */
     private PDF createPDF(File fileEntry) throws LangDetectException, IOException, InvalidPDF {
 
-        ArrayList<WordOcc> wordOccurences = extractPDFContent(fileEntry);
+        ArrayList<WordProperty> wordOccurences = extractPDFContent(fileEntry);
         PDF pdf = fillPDF(fileEntry,wordOccurences);
 
         if (hasKeywords(pdf)) {
@@ -48,23 +48,23 @@ public class PDFHandler {
 
 
 
-    private ArrayList<WordOcc> extractPDFContent(File fileEntry) throws LangDetectException, IOException, InvalidPDF {
-        ArrayList<Words> words;
-        ArrayList<WordOcc> wordOccs = new ArrayList<WordOcc>();
+    private ArrayList<WordProperty> extractPDFContent(File fileEntry) throws LangDetectException, IOException, InvalidPDF {
+        ArrayList<Word> words;
+        ArrayList<WordProperty> wordProperties = new ArrayList<WordProperty>();
         words = extractor.parsePDF(fileEntry);
         if (hasWords(words)) {
-            wordOccs = NLPUtil.keyOcc(words);
+            wordProperties = NLPUtil.keyOcc(words);
         }
-        return wordOccs;
+        return wordProperties;
     }
 
-    private PDF fillPDF(File fileEntry, ArrayList<WordOcc> occ) {
+    private PDF fillPDF(File fileEntry, ArrayList<WordProperty> occ) {
         PDF pdf = new PDF(occ, extractor);
         pdf.setFilename(fileEntry.getName());
         return pdf;
     }
 
-    private boolean hasWords(ArrayList<Words> words) {
+    private boolean hasWords(ArrayList<Word> words) {
         return words.size() > 0;
     }
 

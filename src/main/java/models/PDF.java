@@ -13,7 +13,7 @@ import Util.AlgorithmUtil;
 import modules.PDFExtractor;
 
 public class PDF {
-    private ArrayList<WordOcc> wordOcc;
+    private ArrayList<WordProperty> wordProperty;
     private String language;
     private int wordcount;
     private ArrayList<Category> genericKeywords;
@@ -30,14 +30,14 @@ public class PDF {
     public PDF() {
     }
 
-    public PDF(ArrayList<WordOcc> words, String language, int wordcount) {
-        this.wordOcc = words;
+    public PDF(ArrayList<WordProperty> words, String language, int wordcount) {
+        this.wordProperty = words;
         this.wordcount = wordcount;
         this.language = language;
     }
 
-    public PDF(ArrayList<WordOcc> words, PDFExtractor extractor) {
-        this.wordOcc = words;
+    public PDF(ArrayList<WordProperty> words, PDFExtractor extractor) {
+        this.wordProperty = words;
         this.wordcount = extractor.getWordcount();
         this.language = extractor.getPdfText().getLanguage();
         this.firstPage = extractor.getTitlePage();
@@ -47,9 +47,9 @@ public class PDF {
     }
 
     public void calculateTF_IDF() {
-        WordOcc word = null;
-        for (int ii = 0; ii < wordOcc.size(); ii++) {
-            word = wordOcc.get(ii);
+        WordProperty word = null;
+        for (int ii = 0; ii < wordProperty.size(); ii++) {
+            word = wordProperty.get(ii);
             double tf = AlgorithmUtil
                     .calcTF((double) word.getOcc(), (double) wordcount);
             word.setTf(tf);
@@ -58,10 +58,10 @@ public class PDF {
         }
     }
 
-    public WordOcc getWordOcc(String word) {
-        for (int ii = 0; ii < this.wordOcc.size(); ii++) {
-            if (wordOcc.get(ii).getWord().getWord().contains(word)) {
-                return wordOcc.get(ii);
+    public WordProperty getWordOcc(String word) {
+        for (int ii = 0; ii < this.wordProperty.size(); ii++) {
+            if (wordProperty.get(ii).getWord().getText().contains(word)) {
+                return wordProperty.get(ii);
             }
         }
         return null;
@@ -75,16 +75,16 @@ public class PDF {
         this.wordcount = wordcount;
     }
 
-    public ArrayList<WordOcc> getWordOccList() {
-        return wordOcc;
+    public ArrayList<WordProperty> getWordOccList() {
+        return wordProperty;
     }
 
-    public void addWordOcc(WordOcc word) {
+    public void addWordOcc(WordProperty word) {
         this.addWordOcc(word);
     }
 
-    public void setWordOcc(ArrayList<WordOcc> wordocc) {
-        this.wordOcc = wordocc;
+    public void setWordProperty(ArrayList<WordProperty> wordocc) {
+        this.wordProperty = wordocc;
     }
 
     public String getLanguage() {

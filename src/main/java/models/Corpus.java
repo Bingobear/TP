@@ -34,22 +34,22 @@ public class Corpus {
     }
 
     public void calculateIdf() {
-        ArrayList<WordOcc> words = null;
+        ArrayList<WordProperty> words = null;
         // new
-        ArrayList<WordOcc> wordes = null;
+        ArrayList<WordProperty> wordes = null;
         String language = null;
         for (PDF doc : pdfList) {
             words = doc.getWordOccList();
             language = doc.getLanguage();
-            for (WordOcc word : words) {
+            for (WordProperty word : words) {
                 // so words are not considered multiple times
                 if (word.getKeyinPDF() == 0) {
                     for (PDF currdoc : pdfList) {
                         if (currdoc.getLanguage().equals(language)) {
                             wordes = currdoc.getWordOccList();
                             for (int ii = 0; ii < wordes.size(); ii++) {
-                                if (wordes.get(ii).getWord().getWord()
-                                        .contains(word.getWord().getWord())) {
+                                if (wordes.get(ii).getWord().getText()
+                                        .contains(word.getWord().getText())) {
                                     word.incKeyinPDF();
                                     break;
                                 }
@@ -61,7 +61,7 @@ public class Corpus {
         }
         for (PDF doc : pdfList) {
             words = doc.getWordOccList();
-            for (WordOcc word : words) {
+            for (WordProperty word : words) {
                 String pdfLanguage = doc.getLanguage();
                 word.setIdf(AlgorithmUtil.calcIDF(
                         (double) getDocN(pdfLanguage),
@@ -123,8 +123,8 @@ public class Corpus {
      */
     public ArrayList<PDF> filterPDFTDIDF(double level) {
         for (int ii = 0; ii < pdfList.size(); ii++) {
-            ArrayList<WordOcc> words = pdfList.get(ii).getWordOccList();
-            ArrayList<WordOcc> test = new ArrayList<WordOcc>();
+            ArrayList<WordProperty> words = pdfList.get(ii).getWordOccList();
+            ArrayList<WordProperty> test = new ArrayList<WordProperty>();
 
             for (int jj = 0; jj < words.size(); jj++) {
 
@@ -133,7 +133,7 @@ public class Corpus {
                 }
 
             }
-            pdfList.get(ii).setWordOcc(test);
+            pdfList.get(ii).setWordProperty(test);
         }
         return pdfList;
     }
@@ -204,16 +204,16 @@ public class Corpus {
      * Calculates occurences of a word within each category (preparation TFICF)
      *
      * @param position
-     * @param wordOccList
+     * @param wordPropertyList
      */
-    private void addCategoryWords(int position, ArrayList<WordOcc> wordOccList) {
-        ArrayList<WordOcc> keys = this.globalCategoryCatalog.get(position)
+    private void addCategoryWords(int position, ArrayList<WordProperty> wordPropertyList) {
+        ArrayList<WordProperty> keys = this.globalCategoryCatalog.get(position)
                 .getKeywordList();
         boolean found = false;
         int catocc = 0;
-        for (WordOcc word : wordOccList) {
-            for (WordOcc gkey : keys) {
-                if (word.getWord().getWord().equals(gkey.getWord().getWord())) {
+        for (WordProperty word : wordPropertyList) {
+            for (WordProperty gkey : keys) {
+                if (word.getWord().getText().equals(gkey.getWord().getText())) {
                     found = true;
                     gkey.setOcc(gkey.getOcc() + word.getOcc());
                     catocc = catocc + gkey.getOcc();
@@ -263,7 +263,7 @@ public class Corpus {
         for (int ii = 0; ii < this.globalCategoryCatalog.size(); ii++) {
             this.globalCategoryCatalog.get(ii).calculateTF_IDF();
 //			 System.out.println(ii);
-//			 ArrayList<WordOcc> words = this.globalCategoryCatalog.get(ii)
+//			 ArrayList<WordProperty> words = this.globalCategoryCatalog.get(ii)
 //			 .getKeywordList();
 //			 for (int jj = 0; jj < words.size(); jj++) {
 //			 if (words.get(jj).getCatTFIDF() > 0) {
@@ -271,7 +271,7 @@ public class Corpus {
 //			 + this.globalCategoryCatalog.get(ii).getCategory()
 //			 .getTitle() + " "
 //			 + words.get(jj).getCatTFIDF() + ":"
-//			 + words.get(jj).getWord().getWord());
+//			 + words.get(jj).getText().getText());
 //			 }
 //			 }
 //			 System.out
@@ -288,10 +288,10 @@ public class Corpus {
      * @return
      */
     private PDF calculateCatTF(PDF current, int counter, CategoryCatalog catcat) {
-        for (WordOcc pdfword : current.getWordOccList()) {
-            for (WordOcc word : catcat.getKeywordList()) {
-                if (pdfword.getWord().getWord()
-                        .equals(word.getWord().getWord())) {
+        for (WordProperty pdfword : current.getWordOccList()) {
+            for (WordProperty word : catcat.getKeywordList()) {
+                if (pdfword.getWord().getText()
+                        .equals(word.getWord().getText())) {
                     current.getGenericKeywords().get(counter)
                             .incwOcc(word.getOcc());
                     break;
@@ -305,17 +305,17 @@ public class Corpus {
      * Calculates the icf part of tf-icf
      */
     public void calculateICF() {
-        ArrayList<WordOcc> words = null;
-        ArrayList<WordOcc> wordes = null;
+        ArrayList<WordProperty> words = null;
+        ArrayList<WordProperty> wordes = null;
         for (CategoryCatalog doc : this.globalCategoryCatalog) {
             words = doc.getKeywordList();
-            for (WordOcc word : words) {
+            for (WordProperty word : words) {
                 if (word.getKeyinCat() == 0) {
                     for (CategoryCatalog currdoc : this.globalCategoryCatalog) {
                         wordes = currdoc.getKeywordList();
                         for (int ii = 0; ii < wordes.size(); ii++) {
-                            if ((wordes.get(ii).getWord().getWord().equals(word
-                                    .getWord().getWord()))
+                            if ((wordes.get(ii).getWord().getText().equals(word
+                                    .getWord().getText()))
                                     && (!word.isCatRet())) {
 
                                 word.incKeyinCat();
@@ -330,7 +330,7 @@ public class Corpus {
         }
         for (CategoryCatalog doc : this.globalCategoryCatalog) {
             words = doc.getKeywordList();
-            for (WordOcc word : words) {
+            for (WordProperty word : words) {
                 word.setCatIDF(AlgorithmUtil.calcIDF(
                         // have to consider also occurence not only size
                         (double) this.globalCategoryCatalog.size(),
@@ -347,7 +347,7 @@ public class Corpus {
         for (int ii = 0; ii < this.pdfList.size(); ii++) {
             ArrayList<Category> pdfcat = this.pdfList.get(ii)
                     .getGenericKeywords();
-            for (WordOcc word : pdfList.get(ii).getWordOccList()) {
+            for (WordProperty word : pdfList.get(ii).getWordOccList()) {
                 for (int counter = 0; counter < pdfcat.size(); counter++) {
                     for (Category current : word.getWord().getCategory()) {
                         if (current.getTitle().equals(
@@ -380,9 +380,9 @@ public class Corpus {
      */
     public void filterTFICF(double level) {
         for (int ii = 0; ii < globalCategoryCatalog.size(); ii++) {
-            ArrayList<WordOcc> words = globalCategoryCatalog.get(ii)
+            ArrayList<WordProperty> words = globalCategoryCatalog.get(ii)
                     .getKeywordList();
-            ArrayList<WordOcc> relevantWords = new ArrayList<WordOcc>();
+            ArrayList<WordProperty> relevantWords = new ArrayList<WordProperty>();
 
             for (int jj = 0; jj < words.size(); jj++) {
 

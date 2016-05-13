@@ -10,13 +10,13 @@ import Util.AlgorithmUtil;
  */
 public class CategoryCatalog {
 private Category category;
-private ArrayList<WordOcc> keywordList = new ArrayList<WordOcc>();
+private ArrayList<WordProperty> keywordList = new ArrayList<WordProperty>();
 //Move this to calculation rather than inremental (at the end calc totalW)
 private int totalW=0;
-	public CategoryCatalog(Category cat, ArrayList<WordOcc> keys) {
+	public CategoryCatalog(Category cat, ArrayList<WordProperty> keys) {
 		this.category = cat;
 		this.setKeywordList(keys);
-		for(WordOcc key : keys){
+		for(WordProperty key : keys){
 			this.totalW = this.totalW+key.getOcc();
 		}
 	}
@@ -26,10 +26,10 @@ private int totalW=0;
 	public void setCategory(Category category) {
 		this.category = category;
 	}
-	public ArrayList<WordOcc> getKeywordList() {
+	public ArrayList<WordProperty> getKeywordList() {
 		return keywordList;
 	}
-	public void setKeywordList(ArrayList<WordOcc> keywordList) {
+	public void setKeywordList(ArrayList<WordProperty> keywordList) {
 		this.keywordList = keywordList;
 	}
 	public int getTotalW() {
@@ -43,7 +43,7 @@ private int totalW=0;
 		this.totalW = this.totalW+totalW;
 	}
 	public void calculateTF_IDF() {
-		WordOcc word = null;
+		WordProperty word = null;
 		for (int ii = 0; ii < keywordList.size(); ii++) {
 			word = keywordList.get(ii);
 			double tf = AlgorithmUtil

@@ -4,7 +4,7 @@ import Util.NLPUtil;
 import com.cybozu.labs.langdetect.LangDetectException;
 import models.BasicText;
 import models.Category;
-import models.Words;
+import models.Word;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,7 +33,7 @@ public class PDFExtractor {
     private ArrayList<Category> keywords = new ArrayList<Category>();
     private PDFConverter pdfConverter;
 
-    public ArrayList<Words> parsePDF(File fileEntry) throws IOException, InvalidPDF, LangDetectException {
+    public ArrayList<Word> parsePDF(File fileEntry) throws IOException, InvalidPDF, LangDetectException {
         pdfConverter = new PDFConverter(fileEntry);
         parseFirstPages();
         return parsePDF2Words();
@@ -72,8 +72,8 @@ public class PDFExtractor {
      * @throws LangDetectException
      * @throws IOException
      */
-    public ArrayList<Words> parsePDF2Words() throws LangDetectException, IOException, InvalidPDF {
-        ArrayList<Words> result = new ArrayList<Words>();
+    public ArrayList<Word> parsePDF2Words() throws LangDetectException, IOException, InvalidPDF {
+        ArrayList<Word> result = new ArrayList<Word>();
         setPagenumber(pdfConverter.getPageNumber());
         ArrayList<BasicText> basicTexts= new ArrayList<BasicText>();
         for (int startPage = 0; startPage < pdfConverter.getPageNumber(); startPage += steps) {
@@ -81,7 +81,7 @@ public class PDFExtractor {
             BasicText basicTextofPages = new BasicText(pdfConverter.parseNPages(startPage, endPage));
             basicTexts.add(basicTextofPages);
             if (isValidPDF(startPage, basicTextofPages.getText())) {
-                ArrayList<Words> words = extractWords(basicTextofPages);
+                ArrayList<Word> words = extractWords(basicTextofPages);
                 result.addAll(words);
             } else {
                 throw new InvalidPDF();
@@ -92,7 +92,7 @@ public class PDFExtractor {
         return result;
     }
 
-    private ArrayList<Words> extractWords(BasicText basicText) {
+    private ArrayList<Word> extractWords(BasicText basicText) {
         String[] tokens = NLPUtil.getToken(basicText.getText(), basicText.getLanguage());
         String[] filter = NLPUtil.posttags(tokens, basicText.getLanguage());
         wordcount = wordcount + tokens.length;
