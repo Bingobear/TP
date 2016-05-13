@@ -2,6 +2,7 @@ package modules;
 
 import Util.NLPUtil;
 import com.cybozu.labs.langdetect.LangDetectException;
+import models.BasicText;
 import models.Category;
 import models.Words;
 
@@ -28,7 +29,6 @@ public class PDFExtractor {
     private int endPosition = 0;
     private int pagenumber;
     private int wordcount = 0;
-    private String language;
     private ArrayList<Category> keywords = new ArrayList<Category>();
     private PDFConverter pdfConverter;
 
@@ -40,18 +40,14 @@ public class PDFExtractor {
 
     private void parseFirstPages() throws IOException, InvalidPDF, LangDetectException {
         String parsedText = pdfConverter.parseNPages(startFirstPage, endFirstPage);
-        parsedText = parsedText.toLowerCase();
-        detectLanguage(parsedText);
-        setTitlePage(parsedText);
-        String[] tokens = NLPUtil.getTokenPM(parsedText, this.language);
+        BasicText basicText = new BasicText(parsedText);
+        setTitlePage(basicText.getText());
+        String[] tokens = NLPUtil.getTokenPM(parsedText, basicText.getLanguage());
         getKeywordsPDF(tokens);
         optimizeTitlePageSize();
     }
 
-    private void detectLanguage(String parsedText) throws LangDetectException {
-        LangDetect lang = new LangDetect();
-        setLang(lang.detect(parsedText));
-    }
+
 
     private void getKeywordsPDF(String[] tokens) throws InvalidPDF {
         KeywordExtractor keywordExtractor = new KeywordExtractor();
@@ -80,10 +76,9 @@ public class PDFExtractor {
         setPagenumber(pdfConverter.getPageNumber());
         for (int startPage = 0; startPage < pdfConverter.getPageNumber(); startPage += steps) {
             int endPage = startPage + stepPages;
-            String parsedText = pdfConverter.parseNPages(startPage, endPage);
-            if (isValidPDF(startPage, parsedText)) {
-                parsedText = parsedText.toLowerCase();
-                ArrayList<Words> words = extractWords(parsedText);
+            BasicText basicText = new BasicText(pdfConverter.parseNPages(startPage, endPage));
+            if (isValidPDF(startPage, basicText.getText())) {
+                ArrayList<Words> words = extractWords(basicText);
                 result.addAll(words);
             } else {
                 throw new InvalidPDF();
@@ -93,11 +88,11 @@ public class PDFExtractor {
         return result;
     }
 
-    private ArrayList<Words> extractWords(String parsedText) {
-        String[] tokens = NLPUtil.getToken(parsedText, language);
-        String[] filter = NLPUtil.posttags(tokens, language);
+    private ArrayList<Words> extractWords(BasicText basicText) {
+        String[] tokens = NLPUtil.getToken(basicText.getText(), basicText.getLanguage());
+        String[] filter = NLPUtil.posttags(tokens, basicText.getLanguage());
         wordcount = wordcount + tokens.length;
-        return NLPUtil.generateWords(filter, tokens, FILTER_WORDTYPE_MODE, this.getLang(), this.getKeywords());
+        return NLPUtil.generateWords(filter, tokens, FILTER_WORDTYPE_MODE, basicText.getLanguage(), this.getKeywords());
     }
 
     private boolean isFirstPage(int startPage) {
@@ -118,14 +113,6 @@ public class PDFExtractor {
 
     public int getWordcount() {
         return wordcount;
-    }
-
-    private void setLang(String lang) {
-        this.language = lang;
-    }
-
-    public String getLang() {
-        return this.language;
     }
 
     public String getTitlePage() {
