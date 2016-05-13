@@ -43,7 +43,7 @@ public class PDFExtractor {
         String parsedText = pdfConverter.parseNPages(startFirstPage, endFirstPage);
         BasicText basicText = new BasicText(parsedText);
         setTitlePage(basicText.getText());
-        String[] tokens = NLPUtil.getTokenPM(parsedText, basicText.getLanguage());
+        String[] tokens = NLPUtil.getTokenPM(basicText.getText(), basicText.getLanguage());
         getKeywordsPDF(tokens);
         optimizeTitlePageSize();
     }
