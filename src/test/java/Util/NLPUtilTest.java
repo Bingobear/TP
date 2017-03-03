@@ -5,6 +5,9 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Arrays;
+import java.util.Collections;
+
 public class NLPUtilTest {
 	String[] tokens;
 	String[] filter;
@@ -25,7 +28,7 @@ public class NLPUtilTest {
 		assertEquals(
 				6,
 				NLPUtil.keyOcc(
-						NLPUtil.generateWords(filter, tokens, 0, "de", null))
+						NLPUtil.generateWords(filter, tokens, Collections.singletonList(WordTypeFilter.NOUN), "de", null))
 						.size());
 	}
 
@@ -33,31 +36,31 @@ public class NLPUtilTest {
 	public void testGenerateWordsEmpty() {
 		String [] tokenemp=new String[]{""};
 		String [] filteremp=new String[]{""};
-		assertEquals(0, NLPUtil.generateWords(filteremp, tokenemp, 0, "en", null)
+		assertEquals(0, NLPUtil.generateWords(filteremp, tokenemp, Collections.singletonList(WordTypeFilter.NOUN), "en", null)
 				.size());
 	}
 	
 	@Test
 	public void testGenerateWordsNouns() {
-		assertEquals(7, NLPUtil.generateWords(filter, tokens, 0, "en", null)
+		assertEquals(7, NLPUtil.generateWords(filter, tokens, Collections.singletonList(WordTypeFilter.NOUN), "en", null)
 				.size());
 	}
 
 	@Test
 	public void testGenerateWordsNounsVerbs() {
-		assertEquals(14, NLPUtil.generateWords(filter, tokens, 1, "en", null)
+		assertEquals(14, NLPUtil.generateWords(filter, tokens, Arrays.asList(WordTypeFilter.NOUN, WordTypeFilter.VERB), "en", null)
 				.size());
 	}
 
 	@Test
 	public void testGenerateWordsNounsAdjectives() {
-		assertEquals(8, NLPUtil.generateWords(filter, tokens, 2, "en", null)
+		assertEquals(8, NLPUtil.generateWords(filter, tokens, Arrays.asList(WordTypeFilter.NOUN, WordTypeFilter.ADJECTIVE), "en", null)
 				.size());
 	}
 
 	@Test(expected = AssertionError.class)
 	public void testGenerateWordsNotKnownModeSelected() {
-		assertEquals(8, NLPUtil.generateWords(filter, tokens, 5, "en", null)
+		assertEquals(8, NLPUtil.generateWords(filter, tokens, Collections.<WordTypeFilter>emptyList(), "en", null)
 				.size());
 	}
 

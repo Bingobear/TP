@@ -3,6 +3,8 @@ package Util;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import models.Category;
 import models.Word;
@@ -60,6 +62,7 @@ public class NLPUtil {
                 }
                 counter = ii;
                 size = keywords.size();
+
             }
             result.add(new WordProperty(current, count));
         }
@@ -71,11 +74,11 @@ public class NLPUtil {
      *
      * @param filter
      * @param tokens
-     * @param mode   : 0-Noun, 1-Noun&Verb, 2-Noun&Adjective
+     * @param types   : List of filter types
      * @return
      */
     public static ArrayList<Word> generateWords(String[] filter, String[] tokens,
-                                                int mode, String language, ArrayList<Category> keywords) {
+                                                List<WordTypeFilter> types, String language, ArrayList<Category> keywords) {
         // ArrayList<Integer> result = new ArrayList<Integer>();
 
         ArrayList<Word> result = new ArrayList<Word>();
@@ -83,54 +86,11 @@ public class NLPUtil {
         Stemmer stem = new Stemmer();
         String[] stemmedW = stem.stem(tokens, language);
 
-        if (mode == 0) {
+        for (WordTypeFilter type : types) {
             for (int ii = 0; ii < filter.length; ii++) {
-                if ((filter[ii].contains("NN"))) {
+                if ((filter[ii].contains(type.getTypes()))) {
                     if (!language.equals("de")) {
                         // System.out.println(tokens[ii]);
-                        String text = tokens[ii].replaceAll("\\W", "");
-                        if ((!text.isEmpty()) && (text.length() > 1)) {
-                            Word word = new Word(text, stemmedW[ii],
-                                    filter[ii], keywords);
-                            result.add(word);
-                        }
-                    } else {
-                        String text = tokens[ii].replaceAll(
-                                "[^\\p{L}\\p{Nd}]+", "");
-                        if ((!text.isEmpty()) && (text.length() > 1)) {
-                            Word word = new Word(text, stemmedW[ii],
-                                    filter[ii], keywords);
-                            result.add(word);
-                        }
-                    }
-                }
-            }
-        } else if (mode == 1) {
-            for (int ii = 0; ii < filter.length; ii++) {
-                if ((filter[ii].contains("NN")) || (filter[ii].contains("VB"))) {
-                    if (!language.equals("de")) {
-                        // System.out.println(tokens[ii]);
-                        String text = tokens[ii].replaceAll("\\W", "");
-                        if ((!text.isEmpty()) && (text.length() > 1)) {
-                            Word word = new Word(text, stemmedW[ii],
-                                    filter[ii], keywords);
-                            result.add(word);
-                        }
-                    } else {
-                        String text = tokens[ii].replaceAll(
-                                "[^\\p{L}\\p{Nd}]+", "");
-                        if ((!text.isEmpty()) && (text.length() > 1)) {
-                            Word word = new Word(text, stemmedW[ii],
-                                    filter[ii], keywords);
-                            result.add(word);
-                        }
-                    }
-                }
-            }
-        } else if (mode == 2) {
-            for (int ii = 0; ii < filter.length; ii++) {
-                if ((filter[ii].contains("NN")) || (filter[ii].contains("JJ"))) {
-                    if (!language.equals("de")) {
                         String text = tokens[ii].replaceAll("\\W", "");
                         if ((!text.isEmpty()) && (text.length() > 1)) {
                             Word word = new Word(text, stemmedW[ii],
