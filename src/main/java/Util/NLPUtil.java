@@ -18,6 +18,7 @@ import org.apache.pdfbox.util.PDFTextStripper;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -77,30 +78,30 @@ public class NLPUtil {
      * @param types  : List of filter types
      * @return
      */
-    public static ArrayList<Word> generateWords(String[] filter, String[] tokens,
+    public static ArrayList<Word> generateWords(String[] filter, List<String> tokens,
                                                 List<WordTypeFilter> types, String language, ArrayList<Category> keywords) {
         // ArrayList<Integer> result = new ArrayList<Integer>();
         ArrayList<Word> result = new ArrayList<>();
         // for eng and german
         Stemmer stem = new Stemmer();
-        String[] stemmedW = stem.stem(tokens, language);
+        List<String> stemmedW = stem.stem(tokens, language);
 
         for (int ii = 0; ii < filter.length; ii++) {
             for (String type : retrieveWordTypes(types)) {
                 if ((filter[ii].contains(type))) {
                     if (isNotGerman(language)) {
-                        String text = tokens[ii].replaceAll("\\W", "");
+                        String text = tokens.get(ii).replaceAll("\\W", "");
                         if (text.length() > 1) {
-                            Word word = new Word(text, stemmedW[ii],
+                            Word word = new Word(text, stemmedW.get(ii),
                                     filter[ii], keywords);
                             result.add(word);
                         }
                     }
                     else {
-                        String text = tokens[ii].replaceAll(
+                        String text = tokens.get(ii).replaceAll(
                                 "[^\\p{L}\\p{Nd}]+", "");
                         if (text.length() > 1) {
-                            Word word = new Word(text, stemmedW[ii],
+                            Word word = new Word(text, stemmedW.get(ii),
                                     filter[ii], keywords);
                             result.add(word);
                         }
@@ -168,8 +169,7 @@ public class NLPUtil {
      * @return
      */
     public static String[] getTokenPM(String parsedText, String language) {
-        SentenceDetector sentdetector = sentencedetect(language);
-        String[] sentence = sentdetector.sentDetect(parsedText);
+        String[] sentence = parseSentence(parsedText, language);
         ArrayList<String> tokensA = new ArrayList<String>();
         for (int ii = 0; ii < sentence.length; ii++) {
             String[] tokenSen = generalToken(sentence[ii], language);
@@ -185,6 +185,8 @@ public class NLPUtil {
         return tokens;
     }
 
+    //TODO also consider words with '-' e.g. net-working
+
     /**
      * Extracts tokens from a given text - sums sup sentence detection and
      * tokenization
@@ -192,34 +194,26 @@ public class NLPUtil {
      * @param parsedText
      * @return string[]
      */
-    public static String[] getToken(String parsedText, String language) {
-        SentenceDetector sentdetector = sentencedetect(language);
-        String[] sentence = sentdetector.sentDetect(parsedText);
-        ArrayList<String> tokensA = new ArrayList<String>();
-        String help = "";
-        for (int ii = 0; ii < sentence.length; ii++) {
-            String[] tokenSen = generalToken(sentence[ii], language);
-            for (int jj = 0; jj < tokenSen.length; jj++) {
-                help = tokenSen[jj].replaceAll("\\W", "");
+    public static List<String> getToken(String parsedText, String language) {
+        String[] sentence = parseSentence(parsedText, language);
+        ArrayList<String> tokens = new ArrayList<>();
 
-                if ((!help.isEmpty()) && (help.length() > 2)) {
-                    tokensA.add(tokenSen[jj]);
-                }
-                else if ((help.equals("-")) && (jj + 1 < tokenSen.length)) {
-                    String tokencomb = tokensA.get(tokensA.size() - 1) + "-"
-                            + tokenSen[jj + 1];
-                    jj++;
-                    tokensA.add(tokencomb);
-                }
+        for (String aSentence : sentence) {
+            List<String> tokenSen = Arrays.asList(generalToken(aSentence, language));
+            final List<String> sentenceToken = tokenSen.stream()
+                    .map(x -> x.replaceAll("\\W", ""))
+                    .filter(x -> !x.isEmpty())
+                    .filter(x -> x.length() > 2)
+                    .collect(Collectors.toList());
 
-            }
-        }
-        String[] tokens = new String[tokensA.size()];
-        for (int ii = 0; ii < tokensA.size(); ii++) {
-            tokens[ii] = tokensA.get(ii);
-
+            tokens.addAll(sentenceToken);
         }
         return tokens;
+    }
+
+    private static String[] parseSentence(String parsedText, String language) {
+        SentenceDetector sentdetector = sentencedetect(language);
+        return sentdetector.sentDetect(parsedText);
     }
 
     /**

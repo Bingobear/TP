@@ -99,9 +99,9 @@ public class PDFExtractor {
     }
 
     private ArrayList<Word> extractWords(BasicText basicText) {
-        String[] tokens = NLPUtil.getToken(basicText.getText(), basicText.getLanguage());
-        String[] filter = NLPUtil.posttags(tokens, basicText.getLanguage());
-        wordcount = wordcount + tokens.length;
+        List<String> tokens = NLPUtil.getToken(basicText.getText(), basicText.getLanguage());
+        String[] filter = NLPUtil.posttags( tokens.toArray(new String[0]), basicText.getLanguage());
+        wordcount = wordcount + tokens.size();
         return NLPUtil.generateWords(filter, tokens, FILTER_WORDTYPE_MODE, basicText.getLanguage(), this.getKeywords());
     }
 
