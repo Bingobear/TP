@@ -1,11 +1,5 @@
 package Util;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import models.Category;
 import models.Word;
 import models.WordProperty;
@@ -18,9 +12,14 @@ import opennlp.tools.sentdetect.SentenceModel;
 import opennlp.tools.tokenize.Tokenizer;
 import opennlp.tools.tokenize.TokenizerME;
 import opennlp.tools.tokenize.TokenizerModel;
-
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.util.PDFTextStripper;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class NLPUtil {
     /**
@@ -54,7 +53,8 @@ public class NLPUtil {
                     keywords.remove(ii);
                     count++;
                     arraySize--;
-                } else if (AlgorithmUtil.LevenshteinDistance(current.getText(),
+                }
+                else if (AlgorithmUtil.LevenshteinDistance(current.getText(),
                         compare.getText()) < 0.2) {
                     keywords.remove(ii);
                     count++;
@@ -74,33 +74,32 @@ public class NLPUtil {
      *
      * @param filter
      * @param tokens
-     * @param types   : List of filter types
+     * @param types  : List of filter types
      * @return
      */
     public static ArrayList<Word> generateWords(String[] filter, String[] tokens,
                                                 List<WordTypeFilter> types, String language, ArrayList<Category> keywords) {
         // ArrayList<Integer> result = new ArrayList<Integer>();
-
-        ArrayList<Word> result = new ArrayList<Word>();
+        ArrayList<Word> result = new ArrayList<>();
         // for eng and german
         Stemmer stem = new Stemmer();
         String[] stemmedW = stem.stem(tokens, language);
 
-        for (WordTypeFilter type : types) {
-            for (int ii = 0; ii < filter.length; ii++) {
-                if ((filter[ii].contains(type.getTypes()))) {
-                    if (!language.equals("de")) {
-                        // System.out.println(tokens[ii]);
+        for (int ii = 0; ii < filter.length; ii++) {
+            for (String type : retrieveWordTypes(types)) {
+                if ((filter[ii].contains(type))) {
+                    if (isNotGerman(language)) {
                         String text = tokens[ii].replaceAll("\\W", "");
-                        if ((!text.isEmpty()) && (text.length() > 1)) {
+                        if (text.length() > 1) {
                             Word word = new Word(text, stemmedW[ii],
                                     filter[ii], keywords);
                             result.add(word);
                         }
-                    } else {
+                    }
+                    else {
                         String text = tokens[ii].replaceAll(
                                 "[^\\p{L}\\p{Nd}]+", "");
-                        if ((!text.isEmpty()) && (text.length() > 1)) {
+                        if (text.length() > 1) {
                             Word word = new Word(text, stemmedW[ii],
                                     filter[ii], keywords);
                             result.add(word);
@@ -111,6 +110,14 @@ public class NLPUtil {
         }
 
         return result;
+    }
+
+    private static List<String> retrieveWordTypes(List<WordTypeFilter> types) {
+        return types.stream().map(WordTypeFilter::getTypes).collect(Collectors.toList());
+    }
+
+    private static boolean isNotGerman(String language) {
+        return !language.equals("de");
     }
 
     /**
@@ -128,7 +135,8 @@ public class NLPUtil {
             // Loading sentence detection model
             if (language.equals("en")) {
                 modelIn = NLPUtil.class.getResourceAsStream("/eng/en-sent.bin");
-            } else {
+            }
+            else {
                 modelIn = NLPUtil.class.getResourceAsStream("/ger/de-sent.bin");
             }
 
@@ -137,13 +145,16 @@ public class NLPUtil {
 
             _sentenceDetector = new SentenceDetectorME(sentenceModel);
 
-        } catch (final IOException ioe) {
+        }
+        catch (final IOException ioe) {
             ioe.printStackTrace();
-        } finally {
+        }
+        finally {
             if (modelIn != null) {
                 try {
                     modelIn.close();
-                } catch (final IOException e) {
+                }
+                catch (final IOException e) {
                 } // oh well!
             }
         }
@@ -193,7 +204,8 @@ public class NLPUtil {
 
                 if ((!help.isEmpty()) && (help.length() > 2)) {
                     tokensA.add(tokenSen[jj]);
-                } else if ((help.equals("-")) && (jj + 1 < tokenSen.length)) {
+                }
+                else if ((help.equals("-")) && (jj + 1 < tokenSen.length)) {
                     String tokencomb = tokensA.get(tokensA.size() - 1) + "-"
                             + tokenSen[jj + 1];
                     jj++;
@@ -225,7 +237,8 @@ public class NLPUtil {
             // Loading tokenizer model
             if (language.equals("en")) {
                 modelIn = NLPUtil.class.getResourceAsStream("/eng/en-token.bin");
-            } else {
+            }
+            else {
                 modelIn = NLPUtil.class.getResourceAsStream("/ger/de-token.bin");
             }
             final TokenizerModel tokenModel = new TokenizerModel(modelIn);
@@ -233,13 +246,16 @@ public class NLPUtil {
 
             _tokenizer = new TokenizerME(tokenModel);
             tokens = _tokenizer.tokenize(parsedText);
-        } catch (final IOException ioe) {
+        }
+        catch (final IOException ioe) {
             ioe.printStackTrace();
-        } finally {
+        }
+        finally {
             if (modelIn != null) {
                 try {
                     modelIn.close();
-                } catch (final IOException e) {
+                }
+                catch (final IOException e) {
                 } // oh well!
             }
         }
@@ -268,7 +284,8 @@ public class NLPUtil {
             if (language.equals("en")) {
                 modelIn = NLPUtil.class.getResourceAsStream(
                         "/eng/en-pos-maxent.bin");
-            } else {
+            }
+            else {
                 modelIn = NLPUtil.class.getResourceAsStream(
                         "/ger/de-pos-maxent.bin");
             }
@@ -278,13 +295,16 @@ public class NLPUtil {
 
             _posTagger = new POSTaggerME(posModel);
 
-        } catch (final IOException ioe) {
+        }
+        catch (final IOException ioe) {
             ioe.printStackTrace();
-        } finally {
+        }
+        finally {
             if (modelIn != null) {
                 try {
                     modelIn.close();
-                } catch (final IOException e) {
+                }
+                catch (final IOException e) {
                 } // oh well!
             }
         }
