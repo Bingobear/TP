@@ -23,6 +23,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static Util.AlgorithmUtil.LevenshteinDistance;
+
 public class NLPUtil {
     /**
      * Generates WordProperty array -> erasing duplicates and counting words
@@ -30,45 +32,32 @@ public class NLPUtil {
      * @param words
      * @return
      */
-    @SuppressWarnings("unchecked")
     public static ArrayList<WordProperty> keyOcc(ArrayList<Word> words) {
-        ArrayList<Word> keywords = new ArrayList<Word>();
-        keywords = (ArrayList<Word>) words.clone();
-        ArrayList<WordProperty> result = new ArrayList<WordProperty>();
-        int arraySize = keywords.size();
+        ArrayList<Word> keywords = (ArrayList<Word>) words.clone();
+        ArrayList<WordProperty> result = new ArrayList<>();
 
-        @SuppressWarnings("unused")
-        int counter = 0;
-        @SuppressWarnings("unused")
-        int size = 0;
-        while (arraySize > 0) {
-            int count = 0;
-            Word current = keywords.get(0);
+        for (Word current : words) {
+            ArrayList<Word> foundWords = new ArrayList<>();
 
-            for (int ii = 0; ii < keywords.size(); ii++) {
-                Word compare = keywords.get(ii);
-
-                if (compare.getText().equals(current.getText())
-                        || ((compare.getStem().equals(current.getStem())) && ((compare
-                        .getType().contains(current.getType()) || (current
-                        .getType().contains(compare.getType())))))) {
-                    keywords.remove(ii);
-                    count++;
-                    arraySize--;
-                }
-                else if (AlgorithmUtil.LevenshteinDistance(current.getText(),
-                        compare.getText()) < 0.2) {
-                    keywords.remove(ii);
-                    count++;
-                    arraySize--;
-                }
-                counter = ii;
-                size = keywords.size();
-
+            if (!keywords.contains(current)) {
+                continue;
             }
-            result.add(new WordProperty(current, count));
+
+            for (Word compare : keywords) {
+                if ((LevenshteinDistance(current.getText(), compare.getText()) < 0.2) || hasSameWordOrigin(current, compare)) {
+                    foundWords.add(compare);
+                }
+            }
+
+            keywords.removeAll(foundWords);
+            result.add(new WordProperty(current, foundWords.size() + 1));
         }
         return result;
+    }
+
+    private static boolean hasSameWordOrigin(Word current, Word compare) {
+        return current.getStem().equals(compare.getStem()) &&
+                (current.getType().contains(compare.getType()) || compare.getType().contains(current.getType()));
     }
 
     /**
@@ -173,10 +162,12 @@ public class NLPUtil {
     public static String[] getTokenPM(String parsedText, String language) {
         String[] sentences = parseSentence(parsedText, language);
         ArrayList<String> tokens = new ArrayList<>();
+
         for (String sentence : sentences) {
             String[] tokenSen = generalToken(sentence, language);
             Collections.addAll(tokens, tokenSen);
         }
+
         return tokens.toArray(new String[0]);
     }
 
@@ -297,9 +288,7 @@ public class NLPUtil {
             }
         }
         return _posTagger;
-
     }
-
 
     /**
      * Converts x pages (end-start) pdf to String

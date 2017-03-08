@@ -2,9 +2,11 @@ package Util;
 
 import static org.junit.Assert.assertEquals;
 
+import models.WordProperty;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -27,10 +29,11 @@ public class NLPUtilTest {
         String parsedText = "Fischers Fritze fischt frische Fische;Frische Fische fischt Fischers Fritze.";
         List<String> tokens = NLPUtil.getToken(parsedText, "en");
         String[] filter = NLPUtil.posttags(tokens.toArray(new String[0]), "en");
+        final ArrayList<WordProperty> result = NLPUtil.keyOcc(
+                NLPUtil.generateWords(filter, tokens, Collections.singletonList(WordTypeFilter.NOUN), "de", null));
         assertEquals(
                 6,
-                NLPUtil.keyOcc(
-                        NLPUtil.generateWords(filter, tokens, Collections.singletonList(WordTypeFilter.NOUN), "de", null))
+                result
                         .size());
     }
 
