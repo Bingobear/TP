@@ -100,7 +100,8 @@ public class PDFExtractor {
 
     private ArrayList<Word> extractWords(BasicText basicText) {
         List<String> tokens = NLPUtil.getToken(basicText.getText(), basicText.getLanguage());
-        String[] filter = NLPUtil.posttags( tokens.toArray(new String[0]), basicText.getLanguage());
+        tokens = NLPUtil.filterLanguageTokens(tokens, basicText.getLanguage());
+        List<String> filter = NLPUtil.posttags( tokens.toArray(new String[0]), basicText.getLanguage());
         wordcount = wordcount + tokens.size();
         return NLPUtil.generateWords(filter, tokens, FILTER_WORDTYPE_MODE, basicText.getLanguage(), this.getKeywords());
     }
@@ -110,8 +111,7 @@ public class PDFExtractor {
         for (BasicText basicText:basicTexts) {
             addedText = addedText.concat(basicText.getText());
         }
-        BasicText completeText = new BasicText(addedText);
-        return completeText;
+        return new BasicText(addedText);
     }
 
     private boolean isFirstPage(int startPage) {

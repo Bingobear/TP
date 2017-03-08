@@ -68,33 +68,19 @@ public class NLPUtil {
      * @param types  : List of filter types
      * @return
      */
-    public static ArrayList<Word> generateWords(String[] filter, List<String> tokens,
+    public static ArrayList<Word> generateWords(List<String> filter, List<String> tokens,
                                                 List<WordTypeFilter> types, String language, ArrayList<Category> keywords) {
         ArrayList<Word> result = new ArrayList<>();
         // for eng and german
         Stemmer stem = new Stemmer();
         List<String> stemmedW = stem.stem(tokens, language);
 
-        for (int ii = 0; ii < filter.length; ii++) {
+        for (int ii = 0; ii < filter.size(); ii++) {
             for (String type : retrieveWordTypes(types)) {
-                if ((filter[ii].contains(type))) {
-                    if (isNotGerman(language)) {
-                        String text = tokens.get(ii).replaceAll("\\W", "");
-                        if (text.length() > 1) {
-                            Word word = new Word(text, stemmedW.get(ii),
-                                    filter[ii], keywords);
-                            result.add(word);
-                        }
-                    }
-                    else {
-                        String text = tokens.get(ii).replaceAll(
-                                "[^\\p{L}\\p{Nd}]+", "");
-                        if (text.length() > 1) {
-                            Word word = new Word(text, stemmedW.get(ii),
-                                    filter[ii], keywords);
-                            result.add(word);
-                        }
-                    }
+                if ((filter.get(ii).contains(type))) {
+                    Word word = new Word(tokens.get(ii), stemmedW.get(ii),
+                            filter.get(ii), keywords);
+                    result.add(word);
                 }
             }
         }
@@ -106,6 +92,18 @@ public class NLPUtil {
         return types.stream()
                 .map(WordTypeFilter::getTypes)
                 .collect(Collectors.toList());
+    }
+
+    public static List<String> filterLanguageTokens(List<String> tokens, String language) {
+        return tokens.stream()
+                .map(x -> x.replaceAll(getLanguageFilter(language), ""))
+                .filter(x -> x.length() > 1)
+                .collect(Collectors.toList());
+    }
+
+    private static String getLanguageFilter(String language) {
+        if (isNotGerman(language)) return "\\W";
+        else return "[^\\p{L}\\p{Nd}]+";
     }
 
     private static boolean isNotGerman(String language) {
@@ -248,9 +246,9 @@ public class NLPUtil {
      * @param text
      * @return string[]
      */
-    public static String[] posttags(String[] text, String language) {
+    public static List<String> posttags(String[] text, String language) {
         POSTaggerME posttagger = createposttagger(language);
-        return posttagger.tag(text);
+        return Arrays.asList(posttagger.tag(text));
 
     }
 

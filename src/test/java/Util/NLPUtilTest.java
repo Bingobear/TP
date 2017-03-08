@@ -13,7 +13,7 @@ import java.util.List;
 
 public class NLPUtilTest {
     List<String> tokens;
-    String[] filter;
+    List<String> filter;
     String testText;
 
     @Before
@@ -28,7 +28,7 @@ public class NLPUtilTest {
     public void testKeyOcc() {
         String parsedText = "Fischers Fritze fischt frische Fische;Frische Fische fischt Fischers Fritze.";
         List<String> tokens = NLPUtil.getToken(parsedText, "en");
-        String[] filter = NLPUtil.posttags(tokens.toArray(new String[0]), "en");
+        List<String> filter = NLPUtil.posttags(tokens.toArray(new String[0]), "en");
         final ArrayList<WordProperty> result = NLPUtil.keyOcc(
                 NLPUtil.generateWords(filter, tokens, Collections.singletonList(WordTypeFilter.NOUN), "de", null));
         assertEquals(
@@ -40,7 +40,7 @@ public class NLPUtilTest {
     @Test
     public void testGenerateWordsEmpty() {
         List<String> tokenemp = Arrays.asList("");
-        String[] filteremp = new String[]{""};
+        List<String> filteremp = Arrays.asList("");
         assertEquals(0, NLPUtil.generateWords(filteremp, tokenemp, Collections.singletonList(WordTypeFilter.NOUN), "en", null)
                 .size());
     }
