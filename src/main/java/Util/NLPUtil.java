@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -80,7 +81,6 @@ public class NLPUtil {
      */
     public static ArrayList<Word> generateWords(String[] filter, List<String> tokens,
                                                 List<WordTypeFilter> types, String language, ArrayList<Category> keywords) {
-        // ArrayList<Integer> result = new ArrayList<Integer>();
         ArrayList<Word> result = new ArrayList<>();
         // for eng and german
         Stemmer stem = new Stemmer();
@@ -114,7 +114,9 @@ public class NLPUtil {
     }
 
     private static List<String> retrieveWordTypes(List<WordTypeFilter> types) {
-        return types.stream().map(WordTypeFilter::getTypes).collect(Collectors.toList());
+        return types.stream()
+                .map(WordTypeFilter::getTypes)
+                .collect(Collectors.toList());
     }
 
     private static boolean isNotGerman(String language) {
@@ -127,7 +129,7 @@ public class NLPUtil {
      *
      * @return
      */
-    public static SentenceDetector sentencedetect(String language) {
+    private static SentenceDetector sentencedetect(String language) {
 
         SentenceDetector _sentenceDetector = null;
 
@@ -169,20 +171,13 @@ public class NLPUtil {
      * @return
      */
     public static String[] getTokenPM(String parsedText, String language) {
-        String[] sentence = parseSentence(parsedText, language);
-        ArrayList<String> tokensA = new ArrayList<String>();
-        for (int ii = 0; ii < sentence.length; ii++) {
-            String[] tokenSen = generalToken(sentence[ii], language);
-            for (int jj = 0; jj < tokenSen.length; jj++) {
-                tokensA.add(tokenSen[jj]);
-            }
+        String[] sentences = parseSentence(parsedText, language);
+        ArrayList<String> tokens = new ArrayList<>();
+        for (String sentence : sentences) {
+            String[] tokenSen = generalToken(sentence, language);
+            Collections.addAll(tokens, tokenSen);
         }
-        String[] tokens = new String[tokensA.size()];
-        for (int ii = 0; ii < tokensA.size(); ii++) {
-            tokens[ii] = tokensA.get(ii);
-
-        }
-        return tokens;
+        return tokens.toArray(new String[0]);
     }
 
     //TODO also consider words with '-' e.g. net-working
@@ -264,8 +259,7 @@ public class NLPUtil {
      */
     public static String[] posttags(String[] text, String language) {
         POSTaggerME posttagger = createposttagger(language);
-        String[] result = posttagger.tag(text);
-        return result;
+        return posttagger.tag(text);
 
     }
 
@@ -320,9 +314,7 @@ public class NLPUtil {
         PDFTextStripper pdfStripper = new PDFTextStripper();
         pdfStripper.setStartPage(start);
         pdfStripper.setEndPage(end);
-        String parsedText = pdfStripper.getText(pdDoc);
-        return parsedText;
+        return pdfStripper.getText(pdDoc);
     }
-
 
 }
