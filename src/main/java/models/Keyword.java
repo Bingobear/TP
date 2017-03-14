@@ -1,5 +1,7 @@
 package models;
 
+import modules.PDF;
+
 /**
  * Keyword model class
  *

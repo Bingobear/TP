@@ -12,7 +12,6 @@ import static org.junit.Assert.*;
 public class TitleHandlerTest {
     @Test
     public void testgetTitle() throws IOException {
-        PDFHandler pdfHandler = new PDFHandler();
         TitleMatcher titleHandler = new TitleMatcher();
         titleHandler.initializeKnownTitles("text");
         String title = titleHandler.getTitle("schaar_06038875");

@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.ArrayList;
 
 import Util.AlgorithmUtil;
+import modules.PDF;
 
 /**
  * Corpus class Interface to perform ranking algorithm (tfidf) and (tficf)
@@ -22,7 +23,7 @@ public class Corpus {
     }
 
     public Corpus() {
-        pdfList = new ArrayList<PDF>();
+        pdfList = new ArrayList<>();
         docNEng = 0;
         docNGer = 0;
         globalCategoryCatalog = new ArrayList<CategoryCatalog>();
@@ -39,14 +40,14 @@ public class Corpus {
         ArrayList<WordProperty> wordes = null;
         String language = null;
         for (PDF doc : pdfList) {
-            words = doc.getWordOccList();
+            words = doc.getWords();
             language = doc.getLanguage();
             for (WordProperty word : words) {
                 // so words are not considered multiple times
                 if (word.getKeyinPDF() == 0) {
                     for (PDF currdoc : pdfList) {
                         if (currdoc.getLanguage().equals(language)) {
-                            wordes = currdoc.getWordOccList();
+                            wordes = currdoc.getWords();
                             for (int ii = 0; ii < wordes.size(); ii++) {
                                 if (wordes.get(ii).getWord().getText()
                                         .contains(word.getWord().getText())) {
@@ -60,7 +61,7 @@ public class Corpus {
             }
         }
         for (PDF doc : pdfList) {
-            words = doc.getWordOccList();
+            words = doc.getWords();
             for (WordProperty word : words) {
                 String pdfLanguage = doc.getLanguage();
                 word.setIdf(AlgorithmUtil.calcIDF(
@@ -115,28 +116,6 @@ public class Corpus {
         return pdfList;
     }
 
-    /**
-     * Removes words from each pdf which tfidf is not above the defined level
-     *
-     * @param level
-     * @return
-     */
-    public ArrayList<PDF> filterPDFTDIDF(double level) {
-        for (int ii = 0; ii < pdfList.size(); ii++) {
-            ArrayList<WordProperty> words = pdfList.get(ii).getWordOccList();
-            ArrayList<WordProperty> test = new ArrayList<WordProperty>();
-
-            for (int jj = 0; jj < words.size(); jj++) {
-
-                if (words.get(jj).getTfidf() > level) {
-                    test.add(words.get(jj));
-                }
-
-            }
-            pdfList.get(ii).setWordProperty(test);
-        }
-        return pdfList;
-    }
 
     /**
      * Associates pdfwords with category (preparation for tficf)
@@ -146,7 +125,7 @@ public class Corpus {
 
     public void associateWordswithCategory(PDF pdf) {
         boolean found = false;
-        for (Category cat : pdf.getGenericKeywords()) {
+        for (Category cat : pdf.getKeywords()) {
             for (int counter = 0; counter < this.globalCategoryCatalog.size(); counter++) {
                 String wordCat = cat.getNormtitle();
                 String wordGlobal = this.globalCategoryCatalog.get(counter)
@@ -167,14 +146,14 @@ public class Corpus {
                     }
                     cat.setAssociatedGCAT(this.getGlobalCategoryCatalog()
                             .get(counter).getCategory().getNormtitle());
-                    addCategoryWords(counter, pdf.getWordOccList());
+                    addCategoryWords(counter, pdf.getWords());
                     break;
                 }
             }
             if (!found) {
                 cat.setAssociatedGCAT(cat.getNormtitle());
                 this.globalCategoryCatalog.add(new CategoryCatalog(cat, pdf
-                        .getWordOccList()));
+                        .getWords()));
             } else {
                 found = false;
             }
@@ -239,12 +218,12 @@ public class Corpus {
     public void initializeTFICFCalc() {
         for (int ii = 0; ii < this.pdfList.size(); ii++) {
             PDF current = this.pdfList.get(ii);
-            for (int counter = 0; counter < current.getGenericKeywords().size(); counter++) {
+            for (int counter = 0; counter < current.getKeywords().size(); counter++) {
                 for (CategoryCatalog catcat : this.globalCategoryCatalog) {
                     if (catcat
                             .getCategory()
                             .getTitle()
-                            .equals(current.getGenericKeywords().get(counter)
+                            .equals(current.getKeywords().get(counter)
                                     .getTitle())) {
                         current = calculateCatTF(current, counter, catcat);
                     }
@@ -288,11 +267,11 @@ public class Corpus {
      * @return
      */
     private PDF calculateCatTF(PDF current, int counter, CategoryCatalog catcat) {
-        for (WordProperty pdfword : current.getWordOccList()) {
+        for (WordProperty pdfword : current.getWords()) {
             for (WordProperty word : catcat.getKeywordList()) {
                 if (pdfword.getWord().getText()
                         .equals(word.getWord().getText())) {
-                    current.getGenericKeywords().get(counter)
+                    current.getKeywords().get(counter)
                             .incwOcc(word.getOcc());
                     break;
                 }
@@ -346,21 +325,21 @@ public class Corpus {
     public void calculateAllPDFCatRel() {
         for (int ii = 0; ii < this.pdfList.size(); ii++) {
             ArrayList<Category> pdfcat = this.pdfList.get(ii)
-                    .getGenericKeywords();
-            for (WordProperty word : pdfList.get(ii).getWordOccList()) {
+                    .getKeywords();
+            for (WordProperty word : pdfList.get(ii).getWords()) {
                 for (int counter = 0; counter < pdfcat.size(); counter++) {
                     for (Category current : word.getWord().getCategory()) {
                         if (current.getTitle().equals(
                                 pdfcat.get(counter).getTitle())) {
-                            this.pdfList.get(ii).getGenericKeywords()
+                            this.pdfList.get(ii).getKeywords()
                                     .get(counter)
                                     .incRelevance(word.getCatTFIDF());
                             // try to normalize -> avoid problem
-                            this.pdfList.get(ii).getGenericKeywords()
+                            this.pdfList.get(ii).getKeywords()
                                     .get(counter).incNormAdd();
                         }
                     }
-                    this.pdfList.get(ii).getGenericKeywords().get(counter)
+                    this.pdfList.get(ii).getKeywords().get(counter)
                             .getRelevance();
                 }
             }

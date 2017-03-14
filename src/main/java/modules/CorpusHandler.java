@@ -1,12 +1,13 @@
 package modules;
 
+import Util.WordTypeFilter;
 import com.cybozu.labs.langdetect.LangDetectException;
 import models.Corpus;
-import models.PDF;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * Created by simonbruns on 16/03/16.
@@ -17,14 +18,12 @@ public class CorpusHandler {
     private final boolean debug_calc = false;
     private File folder;
 
-    private PDFHandler pdfHandler;
     private TitleMatcher titleHandler;
     private Corpus corpus;
 
     public CorpusHandler() {
         corpus = new Corpus();
         titleHandler = new TitleMatcher();
-        pdfHandler = new PDFHandler();
     }
 
     /**
@@ -66,7 +65,7 @@ public class CorpusHandler {
         for (final File fileEntry : folder.listFiles()) {
             if (fileEntry.isFile()) {
                 try {
-                    PDF pdf = pdfHandler.generatePDFContent(fileEntry);
+                    PDF pdf = new PDF(fileEntry, Collections.singletonList(WordTypeFilter.NOUN));
                     pdf.setTitle(titleHandler.getTitle(fileEntry.getName()));
                     addPDF2Corpus(pdf);
                 } catch (InvalidPDF invalidPDF) {
