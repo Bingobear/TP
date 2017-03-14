@@ -1,6 +1,7 @@
 package modules;
 
 import Util.NLPUtil;
+import Util.WordTypeFilter;
 import com.cybozu.labs.langdetect.LangDetectException;
 import models.BasicText;
 import models.Category;
@@ -10,6 +11,8 @@ import models.Word;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Main Text Mining Class
@@ -19,7 +22,7 @@ import java.util.ArrayList;
 
 public class PDFExtractor {
 
-    public static final int FILTER_WORDTYPE_MODE = 0;
+    public static final List<WordTypeFilter> FILTER_WORDTYPE_MODE = Collections.singletonList(WordTypeFilter.NOUN);
     public static final int steps = 5;
     public static final int stepPages = steps - 1;
     public static final int endFirstPage = 1;
@@ -96,9 +99,10 @@ public class PDFExtractor {
     }
 
     private ArrayList<Word> extractWords(BasicText basicText) {
-        String[] tokens = NLPUtil.getToken(basicText.getText(), basicText.getLanguage());
-        String[] filter = NLPUtil.posttags(tokens, basicText.getLanguage());
-        wordcount = wordcount + tokens.length;
+        List<String> tokens = NLPUtil.getToken(basicText.getText(), basicText.getLanguage());
+        tokens = NLPUtil.filterLanguageTokens(tokens, basicText.getLanguage());
+        List<String> filter = NLPUtil.posttags( tokens.toArray(new String[0]), basicText.getLanguage());
+        wordcount = wordcount + tokens.size();
         return NLPUtil.generateWords(filter, tokens, FILTER_WORDTYPE_MODE, basicText.getLanguage(), this.getKeywords());
     }
 
@@ -107,8 +111,7 @@ public class PDFExtractor {
         for (BasicText basicText:basicTexts) {
             addedText = addedText.concat(basicText.getText());
         }
-        BasicText completeText = new BasicText(addedText);
-        return completeText;
+        return new BasicText(addedText);
     }
 
     private boolean isFirstPage(int startPage) {

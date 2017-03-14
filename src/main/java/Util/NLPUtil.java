@@ -1,9 +1,5 @@
 package Util;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-
 import models.Category;
 import models.Word;
 import models.WordProperty;
@@ -16,9 +12,18 @@ import opennlp.tools.sentdetect.SentenceModel;
 import opennlp.tools.tokenize.Tokenizer;
 import opennlp.tools.tokenize.TokenizerME;
 import opennlp.tools.tokenize.TokenizerModel;
-
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.util.PDFTextStripper;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static Util.AlgorithmUtil.LevenshteinDistance;
 
 public class NLPUtil {
     /**
@@ -27,43 +32,32 @@ public class NLPUtil {
      * @param words
      * @return
      */
-    @SuppressWarnings("unchecked")
     public static ArrayList<WordProperty> keyOcc(ArrayList<Word> words) {
-        ArrayList<Word> keywords = new ArrayList<Word>();
-        keywords = (ArrayList<Word>) words.clone();
-        ArrayList<WordProperty> result = new ArrayList<WordProperty>();
-        int arraySize = keywords.size();
+        ArrayList<Word> keywords = (ArrayList<Word>) words.clone();
+        ArrayList<WordProperty> result = new ArrayList<>();
 
-        @SuppressWarnings("unused")
-        int counter = 0;
-        @SuppressWarnings("unused")
-        int size = 0;
-        while (arraySize > 0) {
-            int count = 0;
-            Word current = keywords.get(0);
+        for (Word current : words) {
+            ArrayList<Word> foundWords = new ArrayList<>();
 
-            for (int ii = 0; ii < keywords.size(); ii++) {
-                Word compare = keywords.get(ii);
-
-                if (compare.getText().equals(current.getText())
-                        || ((compare.getStem().equals(current.getStem())) && ((compare
-                        .getType().contains(current.getType()) || (current
-                        .getType().contains(compare.getType())))))) {
-                    keywords.remove(ii);
-                    count++;
-                    arraySize--;
-                } else if (AlgorithmUtil.LevenshteinDistance(current.getText(),
-                        compare.getText()) < 0.2) {
-                    keywords.remove(ii);
-                    count++;
-                    arraySize--;
-                }
-                counter = ii;
-                size = keywords.size();
+            if (!keywords.contains(current)) {
+                continue;
             }
-            result.add(new WordProperty(current, count));
+
+            for (Word compare : keywords) {
+                if ((LevenshteinDistance(current.getText(), compare.getText()) < 0.2) || hasSameWordOrigin(current, compare)) {
+                    foundWords.add(compare);
+                }
+            }
+
+            keywords.removeAll(foundWords);
+            result.add(new WordProperty(current, foundWords.size() + 1));
         }
         return result;
+    }
+
+    private static boolean hasSameWordOrigin(Word current, Word compare) {
+        return current.getStem().equals(compare.getStem()) &&
+                (current.getType().contains(compare.getType()) || compare.getType().contains(current.getType()));
     }
 
     /**
@@ -71,86 +65,49 @@ public class NLPUtil {
      *
      * @param filter
      * @param tokens
-     * @param mode   : 0-Noun, 1-Noun&Verb, 2-Noun&Adjective
+     * @param types  : List of filter types
      * @return
      */
-    public static ArrayList<Word> generateWords(String[] filter, String[] tokens,
-                                                int mode, String language, ArrayList<Category> keywords) {
-        // ArrayList<Integer> result = new ArrayList<Integer>();
-
-        ArrayList<Word> result = new ArrayList<Word>();
+    public static ArrayList<Word> generateWords(List<String> filter, List<String> tokens,
+                                                List<WordTypeFilter> types, String language, ArrayList<Category> keywords) {
+        ArrayList<Word> result = new ArrayList<>();
         // for eng and german
         Stemmer stem = new Stemmer();
-        String[] stemmedW = stem.stem(tokens, language);
+        List<String> stemmedW = stem.stem(tokens, language);
 
-        if (mode == 0) {
-            for (int ii = 0; ii < filter.length; ii++) {
-                if ((filter[ii].contains("NN"))) {
-                    if (!language.equals("de")) {
-                        // System.out.println(tokens[ii]);
-                        String text = tokens[ii].replaceAll("\\W", "");
-                        if ((!text.isEmpty()) && (text.length() > 1)) {
-                            Word word = new Word(text, stemmedW[ii],
-                                    filter[ii], keywords);
-                            result.add(word);
-                        }
-                    } else {
-                        String text = tokens[ii].replaceAll(
-                                "[^\\p{L}\\p{Nd}]+", "");
-                        if ((!text.isEmpty()) && (text.length() > 1)) {
-                            Word word = new Word(text, stemmedW[ii],
-                                    filter[ii], keywords);
-                            result.add(word);
-                        }
-                    }
-                }
-            }
-        } else if (mode == 1) {
-            for (int ii = 0; ii < filter.length; ii++) {
-                if ((filter[ii].contains("NN")) || (filter[ii].contains("VB"))) {
-                    if (!language.equals("de")) {
-                        // System.out.println(tokens[ii]);
-                        String text = tokens[ii].replaceAll("\\W", "");
-                        if ((!text.isEmpty()) && (text.length() > 1)) {
-                            Word word = new Word(text, stemmedW[ii],
-                                    filter[ii], keywords);
-                            result.add(word);
-                        }
-                    } else {
-                        String text = tokens[ii].replaceAll(
-                                "[^\\p{L}\\p{Nd}]+", "");
-                        if ((!text.isEmpty()) && (text.length() > 1)) {
-                            Word word = new Word(text, stemmedW[ii],
-                                    filter[ii], keywords);
-                            result.add(word);
-                        }
-                    }
-                }
-            }
-        } else if (mode == 2) {
-            for (int ii = 0; ii < filter.length; ii++) {
-                if ((filter[ii].contains("NN")) || (filter[ii].contains("JJ"))) {
-                    if (!language.equals("de")) {
-                        String text = tokens[ii].replaceAll("\\W", "");
-                        if ((!text.isEmpty()) && (text.length() > 1)) {
-                            Word word = new Word(text, stemmedW[ii],
-                                    filter[ii], keywords);
-                            result.add(word);
-                        }
-                    } else {
-                        String text = tokens[ii].replaceAll(
-                                "[^\\p{L}\\p{Nd}]+", "");
-                        if ((!text.isEmpty()) && (text.length() > 1)) {
-                            Word word = new Word(text, stemmedW[ii],
-                                    filter[ii], keywords);
-                            result.add(word);
-                        }
-                    }
+        for (int ii = 0; ii < filter.size(); ii++) {
+            for (String type : retrieveWordTypes(types)) {
+                if ((filter.get(ii).contains(type))) {
+                    Word word = new Word(tokens.get(ii), stemmedW.get(ii),
+                            filter.get(ii), keywords);
+                    result.add(word);
                 }
             }
         }
 
         return result;
+    }
+
+    private static List<String> retrieveWordTypes(List<WordTypeFilter> types) {
+        return types.stream()
+                .map(WordTypeFilter::getTypes)
+                .collect(Collectors.toList());
+    }
+
+    public static List<String> filterLanguageTokens(List<String> tokens, String language) {
+        return tokens.stream()
+                .map(x -> x.replaceAll(getLanguageFilter(language), ""))
+                .filter(x -> x.length() > 1)
+                .collect(Collectors.toList());
+    }
+
+    private static String getLanguageFilter(String language) {
+        if (isNotGerman(language)) return "\\W";
+        else return "[^\\p{L}\\p{Nd}]+";
+    }
+
+    private static boolean isNotGerman(String language) {
+        return !language.equals("de");
     }
 
     /**
@@ -159,7 +116,7 @@ public class NLPUtil {
      *
      * @return
      */
-    public static SentenceDetector sentencedetect(String language) {
+    private static SentenceDetector sentencedetect(String language) {
 
         SentenceDetector _sentenceDetector = null;
 
@@ -168,7 +125,8 @@ public class NLPUtil {
             // Loading sentence detection model
             if (language.equals("en")) {
                 modelIn = NLPUtil.class.getResourceAsStream("/eng/en-sent.bin");
-            } else {
+            }
+            else {
                 modelIn = NLPUtil.class.getResourceAsStream("/ger/de-sent.bin");
             }
 
@@ -177,13 +135,16 @@ public class NLPUtil {
 
             _sentenceDetector = new SentenceDetectorME(sentenceModel);
 
-        } catch (final IOException ioe) {
+        }
+        catch (final IOException ioe) {
             ioe.printStackTrace();
-        } finally {
+        }
+        finally {
             if (modelIn != null) {
                 try {
                     modelIn.close();
-                } catch (final IOException e) {
+                }
+                catch (final IOException e) {
                 } // oh well!
             }
         }
@@ -197,22 +158,18 @@ public class NLPUtil {
      * @return
      */
     public static String[] getTokenPM(String parsedText, String language) {
-        SentenceDetector sentdetector = sentencedetect(language);
-        String[] sentence = sentdetector.sentDetect(parsedText);
-        ArrayList<String> tokensA = new ArrayList<String>();
-        for (int ii = 0; ii < sentence.length; ii++) {
-            String[] tokenSen = generalToken(sentence[ii], language);
-            for (int jj = 0; jj < tokenSen.length; jj++) {
-                tokensA.add(tokenSen[jj]);
-            }
-        }
-        String[] tokens = new String[tokensA.size()];
-        for (int ii = 0; ii < tokensA.size(); ii++) {
-            tokens[ii] = tokensA.get(ii);
+        String[] sentences = parseSentence(parsedText, language);
+        ArrayList<String> tokens = new ArrayList<>();
 
+        for (String sentence : sentences) {
+            String[] tokenSen = generalToken(sentence, language);
+            Collections.addAll(tokens, tokenSen);
         }
-        return tokens;
+
+        return tokens.toArray(new String[0]);
     }
+
+    //TODO also consider words with '-' e.g. net-working
 
     /**
      * Extracts tokens from a given text - sums sup sentence detection and
@@ -221,33 +178,26 @@ public class NLPUtil {
      * @param parsedText
      * @return string[]
      */
-    public static String[] getToken(String parsedText, String language) {
-        SentenceDetector sentdetector = sentencedetect(language);
-        String[] sentence = sentdetector.sentDetect(parsedText);
-        ArrayList<String> tokensA = new ArrayList<String>();
-        String help = "";
-        for (int ii = 0; ii < sentence.length; ii++) {
-            String[] tokenSen = generalToken(sentence[ii], language);
-            for (int jj = 0; jj < tokenSen.length; jj++) {
-                help = tokenSen[jj].replaceAll("\\W", "");
+    public static List<String> getToken(String parsedText, String language) {
+        String[] sentence = parseSentence(parsedText, language);
+        ArrayList<String> tokens = new ArrayList<>();
 
-                if ((!help.isEmpty()) && (help.length() > 2)) {
-                    tokensA.add(tokenSen[jj]);
-                } else if ((help.equals("-")) && (jj + 1 < tokenSen.length)) {
-                    String tokencomb = tokensA.get(tokensA.size() - 1) + "-"
-                            + tokenSen[jj + 1];
-                    jj++;
-                    tokensA.add(tokencomb);
-                }
+        for (String aSentence : sentence) {
+            List<String> tokenSen = Arrays.asList(generalToken(aSentence, language));
+            final List<String> sentenceToken = tokenSen.stream()
+                    .map(x -> x.replaceAll("\\W", ""))
+                    .filter(x -> !x.isEmpty())
+                    .filter(x -> x.length() > 2)
+                    .collect(Collectors.toList());
 
-            }
-        }
-        String[] tokens = new String[tokensA.size()];
-        for (int ii = 0; ii < tokensA.size(); ii++) {
-            tokens[ii] = tokensA.get(ii);
-
+            tokens.addAll(sentenceToken);
         }
         return tokens;
+    }
+
+    private static String[] parseSentence(String parsedText, String language) {
+        SentenceDetector sentdetector = sentencedetect(language);
+        return sentdetector.sentDetect(parsedText);
     }
 
     /**
@@ -265,7 +215,8 @@ public class NLPUtil {
             // Loading tokenizer model
             if (language.equals("en")) {
                 modelIn = NLPUtil.class.getResourceAsStream("/eng/en-token.bin");
-            } else {
+            }
+            else {
                 modelIn = NLPUtil.class.getResourceAsStream("/ger/de-token.bin");
             }
             final TokenizerModel tokenModel = new TokenizerModel(modelIn);
@@ -273,13 +224,16 @@ public class NLPUtil {
 
             _tokenizer = new TokenizerME(tokenModel);
             tokens = _tokenizer.tokenize(parsedText);
-        } catch (final IOException ioe) {
+        }
+        catch (final IOException ioe) {
             ioe.printStackTrace();
-        } finally {
+        }
+        finally {
             if (modelIn != null) {
                 try {
                     modelIn.close();
-                } catch (final IOException e) {
+                }
+                catch (final IOException e) {
                 } // oh well!
             }
         }
@@ -292,10 +246,9 @@ public class NLPUtil {
      * @param text
      * @return string[]
      */
-    public static String[] posttags(String[] text, String language) {
+    public static List<String> posttags(String[] text, String language) {
         POSTaggerME posttagger = createposttagger(language);
-        String[] result = posttagger.tag(text);
-        return result;
+        return Arrays.asList(posttagger.tag(text));
 
     }
 
@@ -308,7 +261,8 @@ public class NLPUtil {
             if (language.equals("en")) {
                 modelIn = NLPUtil.class.getResourceAsStream(
                         "/eng/en-pos-maxent.bin");
-            } else {
+            }
+            else {
                 modelIn = NLPUtil.class.getResourceAsStream(
                         "/ger/de-pos-maxent.bin");
             }
@@ -318,20 +272,21 @@ public class NLPUtil {
 
             _posTagger = new POSTaggerME(posModel);
 
-        } catch (final IOException ioe) {
+        }
+        catch (final IOException ioe) {
             ioe.printStackTrace();
-        } finally {
+        }
+        finally {
             if (modelIn != null) {
                 try {
                     modelIn.close();
-                } catch (final IOException e) {
+                }
+                catch (final IOException e) {
                 } // oh well!
             }
         }
         return _posTagger;
-
     }
-
 
     /**
      * Converts x pages (end-start) pdf to String
@@ -346,9 +301,7 @@ public class NLPUtil {
         PDFTextStripper pdfStripper = new PDFTextStripper();
         pdfStripper.setStartPage(start);
         pdfStripper.setEndPage(end);
-        String parsedText = pdfStripper.getText(pdDoc);
-        return parsedText;
+        return pdfStripper.getText(pdDoc);
     }
-
 
 }

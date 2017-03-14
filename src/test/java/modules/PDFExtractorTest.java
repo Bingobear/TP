@@ -26,7 +26,7 @@ public class PDFExtractorTest {
     public void testParseNoPDFtoKey() throws LangDetectException, IOException, InvalidPDF {
         File fileEntry = null;
         PDFExtractor extract = new PDFExtractor();
-        assertEquals(2062,extract.parsePDF(fileEntry).size());
+        assertEquals(2070,extract.parsePDF(fileEntry).size());
     }
 
     @Test
@@ -34,7 +34,7 @@ public class PDFExtractorTest {
         ClassLoader classLoader = getClass().getClassLoader();
         File fileEntry =new File(classLoader.getResource("text/schaar_06038875.pdf").getFile());
         PDFExtractor extract = new PDFExtractor();
-        assertEquals(2062,extract.parsePDF(fileEntry).size());
+        assertEquals(2070,extract.parsePDF(fileEntry).size());
     }
 
     @Test
