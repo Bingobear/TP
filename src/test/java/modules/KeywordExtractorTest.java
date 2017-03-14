@@ -18,7 +18,7 @@ public class KeywordExtractorTest {
         KeywordExtractor keywordExtractor = new KeywordExtractor();
         String[] testKeywords = new String[]{"Abstract", "keyword", ":", "Optimization", ",", "LaserSD", ",",
                 "Information Visualization", ",", "DesigningIS", ",", "ObjectiveOP", ".", "Introduction"};
-        ArrayList<Category> cats = keywordExtractor.getKeywordsFromPDF(testKeywords);
+        ArrayList<Category> cats = keywordExtractor.retrieveKeywordsFromPDF(testKeywords);
         assertEquals(5, cats.size());
     }
 
@@ -26,7 +26,7 @@ public class KeywordExtractorTest {
     public void testGetKeywordsFromPDFWith2Keywords() throws Exception {
         KeywordExtractor keywordExtractor = new KeywordExtractor();
         String[] testKeywords = new String[]{"Abstract", "keyword", ":", "Optimization", ",", "LaserSD", ".", "Introduction"};
-        ArrayList<Category> cats = keywordExtractor.getKeywordsFromPDF(testKeywords);
+        ArrayList<Category> cats = keywordExtractor.retrieveKeywordsFromPDF(testKeywords);
         assertEquals(2, cats.size());
     }
 
@@ -34,7 +34,7 @@ public class KeywordExtractorTest {
     public void testGetKeywordsFromPDFWithNoEndingKeyword() throws Exception {
         KeywordExtractor keywordExtractor = new KeywordExtractor();
         String[] testKeywords = new String[]{"Abstract", "keyword", ":", "Optimization", ",", "LaserSD", ",","InfoViz "," to all the nice guys who live here"};
-        ArrayList<Category> cats = keywordExtractor.getKeywordsFromPDF(testKeywords);
+        ArrayList<Category> cats = keywordExtractor.retrieveKeywordsFromPDF(testKeywords);
         assertEquals(2, cats.size());
     }
 
@@ -42,7 +42,7 @@ public class KeywordExtractorTest {
     public void testGetKeywordsWithAkronomsFromPDF() throws Exception {
         KeywordExtractor keywordExtractor = new KeywordExtractor();
         String[] testKeywords = new String[]{"Abstract", "keyword", ":", "Optimization", ",", "LaserSD(LS)", ".", "Introduction"};
-        ArrayList<Category> cats = keywordExtractor.getKeywordsFromPDF(testKeywords);
+        ArrayList<Category> cats = keywordExtractor.retrieveKeywordsFromPDF(testKeywords);
         assertEquals("LS", cats.get(1).getAkronom());
     }
 
@@ -51,7 +51,7 @@ public class KeywordExtractorTest {
         KeywordExtractor keywordExtractor = new KeywordExtractor();
         String[] testKeywords = new String[]{"Hello", "darkness", "my", "old", "friend",
                 "its", "nice", "to", "see", "you", "again"};
-        ArrayList<Category> cats = keywordExtractor.getKeywordsFromPDF(testKeywords);
+        ArrayList<Category> cats = keywordExtractor.retrieveKeywordsFromPDF(testKeywords);
         assertEquals(5, cats.size());
     }
 }

@@ -30,7 +30,7 @@ public class KeywordExtractor {
      * @param tokens
      * @return
      */
-    public ArrayList<Category> getKeywordsFromPDF(String[] tokens) throws InvalidPDF {
+    public ArrayList<Category> retrieveKeywordsFromPDF(String[] tokens) throws InvalidPDF {
         ArrayList<String> textPDF = new ArrayList<String>(Arrays.asList(tokens));
         ArrayList<String> keywordPassage = extractKeywordPassage(textPDF);
         if (!keywordPassage.isEmpty()) {

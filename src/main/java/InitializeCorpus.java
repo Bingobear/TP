@@ -2,7 +2,6 @@ import com.cybozu.labs.langdetect.LangDetectException;
 import models.Corpus;
 import modules.CorpusHandler;
 import modules.InvalidPDF;
-import modules.PDFHandler;
 
 import java.io.IOException;
 

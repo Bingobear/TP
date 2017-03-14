@@ -42,7 +42,7 @@ public class NLPUtil {
             if (!keywords.contains(current)) {
                 continue;
             }
-
+            
             for (Word compare : keywords) {
                 if ((LevenshteinDistance(current.getText(), compare.getText()) < 0.2) || hasSameWordOrigin(current, compare)) {
                     foundWords.add(compare);
